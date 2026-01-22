@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -20,81 +21,194 @@
         }
 
         :root {
-            --primary: #10b981;
-            --primary-dark: #059669;
-            --secondary: #6366f1;
+            /* Vibrant Palette */
+            --primary: #00f260;
+            --primary-dark: #0575e6;
+            --primary-grad: linear-gradient(135deg, #00f260, #0575e6);
+
+            --secondary: #b92b27;
+            --secondary-grad: linear-gradient(135deg, #b92b27, #1565C0);
+
+            --accent: #FF0099;
+            --accent-grad: linear-gradient(135deg, #FF0099, #493240);
+
             --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --bg-card-hover: #334155;
-            --text: #f1f5f9;
-            --text-muted: #94a3b8;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --info: #3b82f6;
+            --bg-glass: rgba(30, 41, 59, 0.7);
+            --bg-glass-hover: rgba(51, 65, 85, 0.8);
+
+            --text: #ffffff;
+            --text-muted: #cbd5e1;
+
+            --danger: #ff416c;
+            --danger-grad: linear-gradient(135deg, #ff416c, #ff4b2b);
+
+            --warning: #f7971e;
+            --warning-grad: linear-gradient(135deg, #f7971e, #ffd200);
+
+            --info: #00c6ff;
+            --info-grad: linear-gradient(135deg, #00c6ff, #0072ff);
+
+            --safe: #56ab2f;
+            --safe-grad: linear-gradient(135deg, #56ab2f, #a8e063);
         }
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: var(--bg-dark);
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
             color: var(--text);
             min-height: 100vh;
             overflow-x: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 1.5rem;
+            position: relative;
+            z-index: 1;
         }
 
-        /* Mobile Header */
+        /* Glassmorphism Cards */
+        .card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Header */
         header {
             text-align: center;
-            padding: 2rem 1rem;
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(99, 102, 241, 0.2));
+            padding: 2.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             border-radius: 24px;
             margin-bottom: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 60%);
-            animation: rotate 20s linear infinite;
-            z-index: 0;
-        }
-
-        @keyframes rotate {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         header h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            font-size: 3rem;
+            font-weight: 800;
+            background: #fff;
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
             margin-bottom: 0.5rem;
-            position: relative;
-            z-index: 1;
         }
 
         header p {
+            color: #fff;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        /* Typography & Elements */
+        h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
             color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+            color: #fff;
             font-size: 1rem;
-            position: relative;
-            z-index: 1;
+            transition: all 0.3s;
+            min-height: 48px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #00f260;
+            box-shadow: 0 0 15px rgba(0, 242, 96, 0.3);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        option {
+            background: var(--bg-dark);
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 48px;
+            letter-spacing: 0.5px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: var(--primary-grad);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 20px rgba(0, 242, 96, 0.6);
+            transform: scale(1.02);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         /* Grid Layouts */
@@ -111,7 +225,6 @@
             margin-bottom: 2rem;
         }
 
-        /* Mobile Responsive */
         @media (max-width: 900px) {
 
             .grid,
@@ -119,16 +232,8 @@
                 grid-template-columns: 1fr;
             }
 
-            .container {
-                padding: 1rem;
-            }
-
             header h1 {
-                font-size: 2rem;
-            }
-
-            .card {
-                padding: 1.25rem;
+                font-size: 2.2rem;
             }
 
             .mobile-stack {
@@ -137,258 +242,147 @@
             }
         }
 
-        .card {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: transform 0.3s ease;
+        /* BMI Indicator */
+        #bmiValue {
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
 
-        .card:hover {
-            transform: translateY(-2px);
-            border-color: rgba(16, 185, 129, 0.3);
-        }
-
-        .card h2 {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--primary);
-        }
-
-        .card h2 span {
-            font-size: 1.4rem;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-
-        input,
-        select {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: var(--bg-dark);
-            color: var(--text);
-            font-size: 1rem;
-            transition: all 0.3s;
-            min-height: 48px;
-            /* Mobile touch target */
-        }
-
-        input:focus,
-        select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-        }
-
-        .btn {
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            min-height: 48px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            width: 100%;
-        }
-
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
-
-        .btn-secondary {
-            background: var(--bg-card-hover);
-            color: var(--text);
-        }
-
+        /* Search Results specific */
         .food-search {
             position: relative;
         }
 
         .search-results {
             position: absolute;
-            top: 100%;
+            top: 110%;
             left: 0;
             right: 0;
-            background: var(--bg-card);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(15px);
             border-radius: 12px;
             max-height: 250px;
             overflow-y: auto;
-            z-index: 50;
+            z-index: 100;
             display: none;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .search-results.active {
             display: block;
-            animation: fadeIn 0.2s;
+            animation: zoomIn 0.2s;
         }
 
         .search-item {
             padding: 1rem;
             cursor: pointer;
-            transition: all 0.2s;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            transition: 0.2s;
         }
 
         .search-item:hover {
-            background: var(--bg-card-hover);
+            background: rgba(255, 255, 255, 0.1);
+            padding-left: 1.5rem;
         }
 
-        .food-list {
-            margin-top: 1rem;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
+        /* Food List */
         .food-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 1rem;
-            background: var(--bg-dark);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
             margin-bottom: 0.5rem;
-            animation: slideInLeft 0.3s;
             border: 1px solid transparent;
+            transition: 0.3s;
         }
 
         .food-item:hover {
-            border-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .remove-btn {
             background: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-            border: none;
-            width: 32px;
-            height: 32px;
+            color: #ff416c;
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
             border-radius: 50%;
+            transition: 0.3s;
+            border: none;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            transition: all 0.2s;
         }
 
         .remove-btn:hover {
             background: var(--danger);
             color: white;
+            transform: rotate(90deg);
         }
 
-        .nutrition-display {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .nutrition-item {
-            background: var(--bg-dark);
-            padding: 1rem;
-            border-radius: 12px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .nutrition-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .nutrition-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 0.2rem;
-        }
-
-        /* Additives & Modal */
-        .additives-list {
-            margin-top: 1rem;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
+        /* Additive Items */
         .additive-item {
             padding: 1rem;
-            background: var(--bg-dark);
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 12px;
             margin-bottom: 0.8rem;
-            border-left: 4px solid var(--warning);
+            border-left: 4px solid;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.2s;
             position: relative;
         }
 
-        .additive-item:active {
-            transform: scale(0.98);
-        }
-
-        .additive-item::after {
-            content: '👆 Info Detail';
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            opacity: 0.5;
+        .additive-item:hover {
+            transform: translateX(5px);
+            background: rgba(0, 0, 0, 0.3);
         }
 
         .additive-item.safe {
-            border-left-color: var(--primary);
+            border-color: #56ab2f;
         }
 
         .additive-item.caution {
-            border-left-color: var(--warning);
+            border-color: #f7971e;
         }
 
         .additive-item.danger {
-            border-left-color: var(--danger);
+            border-color: #ff416c;
         }
 
-        /* Modal Styles */
+        .chem-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .badge-safe {
+            background: var(--safe-grad);
+            box-shadow: 0 0 10px rgba(86, 171, 47, 0.4);
+        }
+
+        .badge-caution {
+            background: var(--warning-grad);
+            box-shadow: 0 0 10px rgba(247, 151, 30, 0.4);
+        }
+
+        .badge-danger {
+            background: var(--danger-grad);
+            box-shadow: 0 0 10px rgba(255, 65, 108, 0.4);
+        }
+
+        /* Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(15, 23, 42, 0.9);
-            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 200;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -396,7 +390,7 @@
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
         }
 
         .modal-overlay.active {
@@ -405,78 +399,42 @@
         }
 
         .modal-content {
-            background: var(--bg-card);
+            background: #1e293b;
             width: 100%;
             max-width: 500px;
             border-radius: 24px;
             padding: 2rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            transform: translateY(20px);
-            transition: transform 0.3s;
-            position: relative;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
         .modal-overlay.active .modal-content {
-            transform: translateY(0);
+            transform: scale(1);
         }
 
         .modal-close {
             position: absolute;
             top: 1rem;
             right: 1rem;
-            background: transparent;
+            background: none;
             border: none;
-            color: var(--text-muted);
+            color: white;
             font-size: 1.5rem;
             cursor: pointer;
-            padding: 0.5rem;
-        }
-
-        .chem-formula {
-            font-family: 'Courier New', monospace;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            display: inline-block;
-            margin: 0.5rem 0;
-            color: var(--secondary);
-            font-weight: bold;
-            border: 1px solid rgba(99, 102, 241, 0.3);
-        }
-
-        .chem-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 99px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
         }
 
         /* Water Tracker */
-        .water-tracker {
-            text-align: center;
-        }
-
-        .water-visual {
-            margin: 1.5rem 0;
-            position: relative;
-            height: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
         .water-big-glass {
-            width: 80px;
-            height: 110px;
-            border: 4px solid rgba(255, 255, 255, 0.2);
+            width: 90px;
+            height: 130px;
+            border: 4px solid rgba(255, 255, 255, 0.4);
             border-top: none;
-            border-radius: 0 0 15px 15px;
+            border-radius: 0 0 20px 20px;
             position: relative;
+            background: rgba(255, 255, 255, 0.05);
             overflow: hidden;
-            background: rgba(255, 255, 255, 0.02);
         }
 
         .water-level {
@@ -484,111 +442,38 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(180deg, #60a5fa, #2563eb);
-            transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0.8;
+            background: var(--info-grad);
+            transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 0 10px rgba(0, 198, 255, 0.5));
         }
 
-        .water-level::before {
-            content: '';
-            position: absolute;
-            top: -5px;
-            left: 0;
-            right: 0;
-            height: 10px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-        }
-
-        .water-controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.8rem;
-            margin-top: 1rem;
-        }
-
-        .water-btn {
-            padding: 0.8rem;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: 0.2s;
-        }
-
-        .water-add {
-            background: var(--info);
-            color: white;
-        }
-
-        .water-add:active {
-            transform: scale(0.95);
-        }
-
-        .water-reset {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-muted);
-        }
-
-        .progress-bar {
-            height: 8px;
-            background: var(--bg-dark);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 0.5rem;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            border-radius: 4px;
-            transition: width 0.5s;
-        }
-
-        /* Helpers */
-        .inline-form {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .inline-form input {
-            flex: 1;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-muted);
-            opacity: 0.7;
-        }
-
-        .empty-state span {
-            font-size: 3rem;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
+        /* Toast */
         .toast {
             position: fixed;
             bottom: 2rem;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
-            background: var(--bg-card);
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--primary);
             padding: 1rem 2rem;
             border-radius: 50px;
-            border: 1px solid var(--primary);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            z-index: 200;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            opacity: 0;
+            gap: 1rem;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 300;
+            backdrop-filter: blur(10px);
         }
 
         .toast.show {
             transform: translateX(-50%) translateY(0);
-            opacity: 1;
+        }
+
+        /* Chart container */
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 250px;
+            width: 250px;
         }
     </style>
 </head>
@@ -598,6 +483,10 @@
         <header>
             <h1>🔬 NutriScan</h1>
             <p>Kalkulator Gizi & Zat Aditif Berbasis Sains</p>
+            <div id="streakDisplay"
+                style="margin-top: 0.5rem; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);">
+                🔥 0 Hari Streak
+            </div>
         </header>
 
         <!-- BMI & Water Tracker Row -->
@@ -634,6 +523,9 @@
                     </select>
                 </div>
                 <button class="btn btn-primary" onclick="calculateNeeds()">🔄 Hitung Kebutuhan</button>
+                <button class="btn btn-secondary" onclick="clearAllData()"
+                    style="margin-top: 0.8rem; width: 100%; color: #ff416c; border-color: rgba(255, 65, 108, 0.3);">🗑️
+                    Reset Semua Data</button>
             </div>
 
             <div class="card">
@@ -688,6 +580,12 @@
                         <div class="search-results" id="searchResults"></div>
                     </div>
                     <div class="form-group inline-form">
+                        <select id="mealTime">
+                            <option value="Sarapan">🌅 Sarapan</option>
+                            <option value="Makan Siang">☀️ Makan Siang</option>
+                            <option value="Makan Malam">🌙 Makan Malam</option>
+                            <option value="Snack">🍿 Snack</option>
+                        </select>
                         <input type="number" id="foodAmount" placeholder="Gram" value="100">
                         <button class="btn btn-secondary" onclick="addSelectedFood()">Tambah</button>
                     </div>
@@ -709,35 +607,15 @@
             <div>
                 <div class="card mobile-stack">
                     <h2><span>📊</span> Ringkasan Nutrisi</h2>
-                    <div class="nutrition-display">
-                        <div class="nutrition-item">
-                            <div class="nutrition-value" id="totalCalories">0</div>
-                            <div class="nutrition-label">Kalori</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="calProgress" style="width:0%"></div>
-                            </div>
-                        </div>
-                        <div class="nutrition-item">
-                            <div class="nutrition-value" id="totalProtein">0</div>
-                            <div class="nutrition-label">Protein</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="protProgress" style="width:0%"></div>
-                            </div>
-                        </div>
-                        <div class="nutrition-item">
-                            <div class="nutrition-value" id="totalFat">0</div>
-                            <div class="nutrition-label">Lemak</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="fatProgress" style="width:0%"></div>
-                            </div>
-                        </div>
-                        <div class="nutrition-item">
-                            <div class="nutrition-value" id="totalCarbs">0</div>
-                            <div class="nutrition-label">Karbo</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="carbProgress" style="width:0%"></div>
-                            </div>
-                        </div>
+                    <div class="chart-container">
+                        <canvas id="nutritionChart"></canvas>
+                    </div>
+                    <div
+                        style="text-align: center; margin-top: 1rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; font-size: 0.9rem;">
+                        <div style="color: #ff6384;">Kalori: <span id="totalCalories">0</span></div>
+                        <div style="color: #36a2eb;">Protein: <span id="totalProtein">0</span>g</div>
+                        <div style="color: #ffcd56;">Lemak: <span id="totalFat">0</span>g</div>
+                        <div style="color: #4bc0c0;">Karbo: <span id="totalCarbs">0</span>g</div>
                     </div>
                     <div
                         style="margin-top: 1.5rem; padding: 1rem; background: rgba(16,185,129,0.1); border-radius: 12px; border: 1px solid rgba(16,185,129,0.2);">
@@ -745,16 +623,20 @@
                             Anda</h3>
                         <div
                             style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.2rem 0; border-bottom: 1px dashed rgba(255,255,255,0.1);">
-                            <span>Kalori</span><strong id="needCal">0</strong></div>
+                            <span>Kalori</span><strong id="needCal">0</strong>
+                        </div>
                         <div
                             style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.2rem 0; border-bottom: 1px dashed rgba(255,255,255,0.1);">
-                            <span>Protein</span><strong id="needProt">0</strong></div>
+                            <span>Protein</span><strong id="needProt">0</strong>
+                        </div>
                         <div
                             style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.2rem 0; border-bottom: 1px dashed rgba(255,255,255,0.1);">
-                            <span>Lemak</span><strong id="needFat">0</strong></div>
+                            <span>Lemak</span><strong id="needFat">0</strong>
+                        </div>
                         <div
                             style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.2rem 0;">
-                            <span>Karbo</span><strong id="needCarb">0</strong></div>
+                            <span>Karbo</span><strong id="needCarb">0</strong>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -817,7 +699,20 @@
             { name: "Sayur Bayam", cal: 23, prot: 2.9, fat: 0.4, carb: 3.6, per: 100, additives: [] },
             { name: "Kangkung", cal: 19, prot: 2.6, fat: 0.2, carb: 3.1, per: 100, additives: [] },
             { name: "Pisang", cal: 89, prot: 1.1, fat: 0.3, carb: 23, per: 100, additives: [] },
-            { name: "Apel", cal: 52, prot: 0.3, fat: 0.2, carb: 14, per: 100, additives: [] }
+            { name: "Apel", cal: 52, prot: 0.3, fat: 0.2, carb: 14, per: 100, additives: [] },
+            { name: "Alpukat", cal: 160, prot: 2, fat: 15, carb: 9, per: 100, additives: [] },
+            { name: "Mangga", cal: 60, prot: 0.8, fat: 0.4, carb: 15, per: 100, additives: [] },
+            { name: "Jeruk", cal: 47, prot: 0.9, fat: 0.1, carb: 12, per: 100, additives: [] },
+            { name: "Nasi Goreng", cal: 163, prot: 6, fat: 6, carb: 22, per: 100, additives: ["E621", "E150c"] },
+            { name: "Sate Ayam (5 tusuk)", cal: 170, prot: 15, fat: 10, carb: 5, per: 100, additives: ["E621", "E150c"] },
+            { name: "Pizza (1 slice)", cal: 266, prot: 11, fat: 10, carb: 33, per: 100, additives: ["E450", "E282", "E322"] },
+            { name: "Cilok (5 butir)", cal: 180, prot: 2, fat: 4, carb: 35, per: 100, additives: ["E621"] },
+            { name: "Seblak", cal: 260, prot: 8, fat: 12, carb: 30, per: 100, additives: ["E621", "E124"] },
+            { name: "Donat", cal: 452, prot: 4, fat: 25, carb: 51, per: 100, additives: ["E102", "E471", "E202"] },
+            { name: "Keripik Singkong", cal: 160, prot: 1, fat: 10, carb: 20, per: 100, additives: ["E621", "E319"] },
+            { name: "Yoghurt Buah", cal: 95, prot: 5, fat: 2, carb: 15, per: 100, additives: ["E124", "E440"] },
+            { name: "Kornet Sapi", cal: 220, prot: 14, fat: 18, carb: 2, per: 100, additives: ["E250", "E316"] },
+            { name: "Martabak Manis (1 potong)", cal: 270, prot: 4, fat: 12, carb: 38, per: 100, additives: ["E500", "E503", "E102"] }
         ];
 
         const additiveInfo = {
@@ -846,7 +741,10 @@
         let selectedFood = null;
         let addedFoods = [];
         let waterCount = 0;
+        let nutritionChart = null;
         const WATER_TARGET = 8;
+        let streak = 0;
+        let lastVisit = null;
 
         // Load Data on Startup
         function loadData() {
@@ -865,6 +763,30 @@
             const savedWater = localStorage.getItem('nutriscan_water');
             if (savedWater) waterCount = parseInt(savedWater);
 
+            // Streak Logic
+            const savedStreak = parseInt(localStorage.getItem('nutriscan_streak') || 0);
+            const savedLastVisit = localStorage.getItem('nutriscan_last_visit');
+            const today = new Date().toDateString();
+
+            if (savedLastVisit !== today) {
+                if (savedLastVisit) {
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    if (savedLastVisit === yesterday.toDateString()) {
+                        streak = savedStreak + 1;
+                    } else {
+                        streak = 1;
+                    }
+                } else {
+                    streak = 1;
+                }
+                localStorage.setItem('nutriscan_last_visit', today);
+                localStorage.setItem('nutriscan_streak', streak);
+            } else {
+                streak = savedStreak;
+            }
+            document.getElementById('streakDisplay').innerHTML = `🔥 ${streak} Hari Streak`;
+
             calculateNeeds();
             renderFoodList();
             updateWaterVisual();
@@ -882,6 +804,13 @@
             localStorage.setItem('nutriscan_foods', JSON.stringify(addedFoods));
             localStorage.setItem('nutriscan_water', waterCount);
             showToast();
+        }
+
+        function clearAllData() {
+            if (confirm('Yakin ingin menghapus semua data? Ini akan mereset progress Anda.')) {
+                localStorage.clear();
+                location.reload();
+            }
         }
 
         function showToast() {
@@ -980,8 +909,9 @@
         function addSelectedFood() {
             if (!selectedFood) return alert('Pilih makanan dari daftar pencarian dulu!');
             const amount = +document.getElementById('foodAmount').value || 100;
+            const meal = document.getElementById('mealTime').value;
 
-            addedFoods.push({ ...selectedFood, amount: amount }); // Clone object
+            addedFoods.push({ ...selectedFood, amount: amount, meal: meal }); // Include meal time
             selectedFood = null;
             document.getElementById('foodSearch').value = '';
 
@@ -1007,16 +937,33 @@
                 return;
             }
 
-            // Render Food Table
-            list.innerHTML = addedFoods.map((f, i) => `
-                <div class="food-item">
-                    <div>
-                        <div class="food-item-name">${f.name}</div>
-                        <div class="food-item-cal">${f.amount}g • ${Math.round(f.cal * f.amount / 100)} kkal</div>
+            // Group foods by meal
+            const grouped = addedFoods.reduce((acc, food, index) => {
+                const meal = food.meal || 'Lainnya';
+                if (!acc[meal]) acc[meal] = [];
+                acc[meal].push({ ...food, index });
+                return acc;
+            }, {});
+
+            // Render Grouped List
+            const mealOrder = ['Sarapan', 'Makan Siang', 'Makan Malam', 'Snack', 'Lainnya'];
+            list.innerHTML = mealOrder.map(meal => {
+                if (!grouped[meal]) return '';
+                return `
+                    <div style="margin-bottom: 1rem;">
+                        <h4 style="color:var(--primary); margin-bottom:0.5rem; text-transform:uppercase; font-size:0.8rem; letter-spacing:1px;">${meal}</h4>
+                        ${grouped[meal].map(f => `
+                            <div class="food-item">
+                                <div>
+                                    <div class="food-item-name">${f.name}</div>
+                                    <div class="food-item-cal">${f.amount}g • ${Math.round(f.cal * f.amount / 100)} kkal</div>
+                                </div>
+                                <button class="remove-btn" onclick="removeFood(${f.index})">×</button>
+                            </div>
+                        `).join('')}
                     </div>
-                    <button class="remove-btn" onclick="removeFood(${i})">×</button>
-                </div>
-            `).join('');
+                `;
+            }).join('');
 
             // Render Additives with Modal Trigger
             const allAdditives = [...new Set(addedFoods.flatMap(f => f.additives))];
@@ -1055,15 +1002,41 @@
             document.getElementById('totalFat').textContent = totals.fat.toFixed(1);
             document.getElementById('totalCarbs').textContent = totals.carb.toFixed(1);
 
-            // Update Progress Bars
-            const setBar = (id, current, max) => {
-                const pct = Math.min(100, (current / max) * 100);
-                document.getElementById(id).style.width = pct + '%';
-            };
-            setBar('calProgress', totals.cal, dailyNeeds.cal || 2000);
-            setBar('protProgress', totals.prot, dailyNeeds.prot || 50);
-            setBar('fatProgress', totals.fat, dailyNeeds.fat || 60);
-            setBar('carbProgress', totals.carb, dailyNeeds.carb || 300);
+            // Update Chart
+            const ctx = document.getElementById('nutritionChart').getContext('2d');
+
+            if (nutritionChart) {
+                nutritionChart.data.datasets[0].data = [totals.prot, totals.fat, totals.carb];
+                nutritionChart.update();
+            } else {
+                nutritionChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Protein', 'Lemak', 'Karbo'],
+                        datasets: [{
+                            data: [totals.prot, totals.fat, totals.carb],
+                            backgroundColor: ['#36a2eb', '#ffcd56', '#4bc0c0'],
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return context.label + ': ' + context.raw.toFixed(1) + 'g';
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                });
+            }
         }
 
         // Water Tracker Logic
