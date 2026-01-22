@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriScan - Kalkulator Gizi & Zat Aditif</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --secondary: #6366f1;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 0;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(99, 102, 241, 0.2));
+            border-radius: 24px;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 900px) {
+
+            .grid,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card h2 span {
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--bg-dark);
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card-hover);
+            color: var(--text);
+        }
+
+        .food-search {
+            position: relative;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-radius: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .search-item {
+            padding: 0.8rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .search-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .food-list {
+            margin-top: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .food-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            background: var(--bg-dark);
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        .food-item-info {
+            flex: 1;
+        }
+
+        .food-item-name {
+            font-weight: 500;
+        }
+
+        .food-item-cal {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .remove-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .nutrition-display {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .nutrition-item {
+            background: var(--bg-dark);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .nutrition-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nutrition-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-dark);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+            transition: width 0.5s;
+        }
+
+        .additives-list {
+            margin-top: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .additive-item {
+            padding: 1rem;
+            background: var(--bg-dark);
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+            border-left: 4px solid var(--warning);
+        }
+
+        .additive-item.safe {
+            border-left-color: var(--primary);
+        }
+
+        .additive-item.caution {
+            border-left-color: var(--warning);
+        }
+
+        .additive-item.danger {
+            border-left-color: var(--danger);
+        }
+
+        .additive-name {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .additive-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+        }
+
+        .badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-safe {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--primary);
+        }
+
+        .badge-caution {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .recommendation {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(99, 102, 241, 0.1));
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .recommendation h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .rec-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state span {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .inline-form {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .inline-form input {
+            flex: 1;
+        }
+
+        /* BMI Card Styles */
+        .bmi-display {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .bmi-value {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .bmi-status {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0.5rem 0;
+        }
+
+        .bmi-range {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .bmi-meter {
+            height: 12px;
+            background: linear-gradient(90deg, var(--info), var(--primary), var(--warning), var(--danger));
+            border-radius: 6px;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .bmi-indicator {
+            position: absolute;
+            top: -4px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: left 0.5s ease;
+        }
+
+        .bmi-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .bmi-tip {
+            background: var(--bg-dark);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .bmi-underweight {
+            color: var(--info);
+        }
+
+        .bmi-normal {
+            color: var(--primary);
+        }
+
+        .bmi-overweight {
+            color: var(--warning);
+        }
+
+        .bmi-obese {
+            color: var(--danger);
+        }
+
+        /* Water Tracker Styles */
+        .water-tracker {
+            text-align: center;
+        }
+
+        .water-display {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .water-glass {
+            width: 50px;
+            height: 70px;
+            background: var(--bg-dark);
+            border-radius: 0 0 10px 10px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .water-glass:hover {
+            transform: scale(1.1);
+            border-color: var(--info);
+        }
+
+        .water-glass.filled {
+            border-color: var(--info);
+        }
+
+        .water-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #60a5fa, #3b82f6);
+            transition: height 0.4s ease;
+            border-radius: 0 0 7px 7px;
+        }
+
+        .water-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+        }
+
+        .water-count {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, var(--info));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .water-target {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .water-ml {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .water-progress {
+            height: 10px;
+            background: var(--bg-dark);
+            border-radius: 5px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .water-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #60a5fa, var(--info));
+            border-radius: 5px;
+            transition: width 0.5s;
+        }
+
+        .water-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .water-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .water-btn-add {
+            background: var(--info);
+            color: white;
+        }
+
+        .water-btn-add:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .water-btn-reset {
+            background: var(--bg-dark);
+            color: var(--text-muted);
+        }
+
+        .water-tip {
+            background: var(--bg-dark);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        @keyframes wave {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-3px);
+            }
+        }
+
+        .water-glass.filled .water-fill {
+            animation: wave 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔬 NutriScan</h1>
+            <p>Kalkulator Gizi & Analisis Zat Aditif Berbasis Sains</p>
+        </header>
+
+        <!-- BMI & Water Tracker Row -->
+        <div class="grid-3">
+            <div class="card">
+                <h2><span>👤</span> Profil Pengguna</h2>
+                <div class="form-group">
+                    <label>Umur (tahun)</label>
+                    <input type="number" id="age" placeholder="17" value="17">
+                </div>
+                <div class="form-group">
+                    <label>Berat Badan (kg)</label>
+                    <input type="number" id="weight" placeholder="60" value="60" oninput="calculateBMI()">
+                </div>
+                <div class="form-group">
+                    <label>Tinggi Badan (cm)</label>
+                    <input type="number" id="height" placeholder="165" value="165" oninput="calculateBMI()">
+                </div>
+                <div class="form-group">
+                    <label>Jenis Kelamin</label>
+                    <select id="gender">
+                        <option value="male">Laki-laki</option>
+                        <option value="female">Perempuan</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tingkat Aktivitas</label>
+                    <select id="activity">
+                        <option value="1.2">Sedentari (jarang olahraga)</option>
+                        <option value="1.375">Ringan (1-3x/minggu)</option>
+                        <option value="1.55" selected>Moderat (3-5x/minggu)</option>
+                        <option value="1.725">Aktif (6-7x/minggu)</option>
+                        <option value="1.9">Sangat Aktif (atlet)</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="calculateNeeds()" style="width:100%">Hitung Kebutuhan
+                    Harian</button>
+            </div>
+
+            <div class="card">
+                <h2><span>⚖️</span> Indeks Massa Tubuh</h2>
+                <div class="bmi-display">
+                    <div class="bmi-value" id="bmiValue">22.0</div>
+                    <div class="bmi-status" id="bmiStatus">Normal</div>
+                    <div class="bmi-range" id="bmiRange">18.5 - 24.9</div>
+                    <div class="bmi-meter">
+                        <div class="bmi-indicator" id="bmiIndicator" style="left: 50%"></div>
+                    </div>
+                    <div class="bmi-labels">
+                        <span>Kurus</span>
+                        <span>Normal</span>
+                        <span>Gemuk</span>
+                        <span>Obesitas</span>
+                    </div>
+                    <div class="bmi-tip" id="bmiTip">
+                        💡 Berat badan Anda ideal! Pertahankan pola makan seimbang dan olahraga teratur.
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span>💧</span> Hidrasi Harian</h2>
+                <div class="water-tracker">
+                    <div class="water-count"><span id="waterCount">0</span><span class="water-target">/8</span></div>
+                    <div class="water-ml" id="waterMl">0 ml dari 2000 ml</div>
+                    <div class="water-display" id="waterGlasses"></div>
+                    <div class="water-progress">
+                        <div class="water-progress-fill" id="waterProgress" style="width: 0%"></div>
+                    </div>
+                    <div class="water-buttons">
+                        <button class="water-btn water-btn-add" onclick="addWater()">+ Tambah Gelas</button>
+                        <button class="water-btn water-btn-reset" onclick="resetWater()">Reset</button>
+                    </div>
+                    <div class="water-tip">
+                        💡 Minum air putih yang cukup membantu metabolisme tubuh dan menjaga konsentrasi saat belajar.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <h2><span>🍽️</span> Tambah Makanan</h2>
+                    <div class="form-group food-search">
+                        <label>Cari Makanan</label>
+                        <input type="text" id="foodSearch" placeholder="Ketik nama makanan..."
+                            oninput="searchFood(this.value)">
+                        <div class="search-results" id="searchResults"></div>
+                    </div>
+                    <div class="form-group inline-form">
+                        <input type="number" id="foodAmount" placeholder="Jumlah (gram)" value="100">
+                        <button class="btn btn-secondary" onclick="addSelectedFood()">Tambah</button>
+                    </div>
+                    <div class="food-list" id="foodList">
+                        <div class="empty-state"><span>🥗</span>Belum ada makanan ditambahkan</div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:1.5rem">
+                    <h2><span>⚗️</span> Analisis Zat Aditif</h2>
+                    <div class="additives-list" id="additivesList">
+                        <div class="empty-state"><span>🧪</span>Tambahkan makanan untuk melihat analisis zat aditif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card">
+                    <h2><span>📊</span> Ringkasan Nutrisi</h2>
+                    <div class="nutrition-display">
+                        <div class="nutrition-item">
+                            <div class="nutrition-value" id="totalCalories">0</div>
+                            <div class="nutrition-label">Kalori (kkal)</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="calProgress" style="width:0%"></div>
+                            </div>
+                        </div>
+                        <div class="nutrition-item">
+                            <div class="nutrition-value" id="totalProtein">0</div>
+                            <div class="nutrition-label">Protein (g)</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="protProgress" style="width:0%"></div>
+                            </div>
+                        </div>
+                        <div class="nutrition-item">
+                            <div class="nutrition-value" id="totalFat">0</div>
+                            <div class="nutrition-label">Lemak (g)</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="fatProgress" style="width:0%"></div>
+                            </div>
+                        </div>
+                        <div class="nutrition-item">
+                            <div class="nutrition-value" id="totalCarbs">0</div>
+                            <div class="nutrition-label">Karbohidrat (g)</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="carbProgress" style="width:0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="recommendation" id="recommendation">
+                        <h3>📋 Kebutuhan Harian Anda</h3>
+                        <div class="rec-item"><span>Kalori</span><span id="needCal">0 kkal</span></div>
+                        <div class="rec-item"><span>Protein</span><span id="needProt">0 g</span></div>
+                        <div class="rec-item"><span>Lemak</span><span id="needFat">0 g</span></div>
+                        <div class="rec-item"><span>Karbohidrat</span><span id="needCarb">0 g</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const foodDatabase = [
+            { name: "Nasi Putih", cal: 130, prot: 2.7, fat: 0.3, carb: 28, per: 100, additives: [] },
+            { name: "Ayam Goreng", cal: 246, prot: 27, fat: 14, carb: 0, per: 100, additives: [] },
+            { name: "Telur Rebus", cal: 155, prot: 13, fat: 11, carb: 1.1, per: 100, additives: [] },
+            { name: "Tempe Goreng", cal: 192, prot: 19, fat: 10, carb: 7.8, per: 100, additives: [] },
+            { name: "Tahu Goreng", cal: 271, prot: 17, fat: 20, carb: 6, per: 100, additives: [] },
+            { name: "Mie Instan", cal: 436, prot: 9, fat: 17, carb: 63, per: 100, additives: ["E621", "E627", "E631", "E150c"] },
+            { name: "Sosis", cal: 228, prot: 12, fat: 18, carb: 4, per: 100, additives: ["E250", "E316", "E621"] },
+            { name: "Nugget Ayam", cal: 245, prot: 13, fat: 15, carb: 15, per: 100, additives: ["E450", "E452", "E621"] },
+            { name: "Roti Tawar", cal: 265, prot: 9, fat: 3, carb: 49, per: 100, additives: ["E282", "E471"] },
+            { name: "Susu UHT", cal: 42, prot: 3.4, fat: 1, carb: 5, per: 100, additives: [] },
+            { name: "Biskuit", cal: 502, prot: 6, fat: 22, carb: 68, per: 100, additives: ["E322", "E503"] },
+            { name: "Keripik Kentang", cal: 536, prot: 7, fat: 35, carb: 53, per: 100, additives: ["E621", "E627", "E631"] },
+            { name: "Minuman Soda", cal: 41, prot: 0, fat: 0, carb: 10, per: 100, additives: ["E150d", "E331", "E338"] },
+            { name: "Es Krim", cal: 207, prot: 3.5, fat: 11, carb: 24, per: 100, additives: ["E410", "E412", "E407"] },
+            { name: "Saus Sambal", cal: 93, prot: 2, fat: 0.4, carb: 20, per: 100, additives: ["E211", "E202", "E110"] },
+            { name: "Kecap Manis", cal: 290, prot: 6, fat: 0.1, carb: 67, per: 100, additives: ["E150c", "E621"] },
+            { name: "Sayur Bayam", cal: 23, prot: 2.9, fat: 0.4, carb: 3.6, per: 100, additives: [] },
+            { name: "Kangkung", cal: 19, prot: 2.6, fat: 0.2, carb: 3.1, per: 100, additives: [] },
+            { name: "Wortel", cal: 41, prot: 0.9, fat: 0.2, carb: 10, per: 100, additives: [] },
+            { name: "Apel", cal: 52, prot: 0.3, fat: 0.2, carb: 14, per: 100, additives: [] },
+            { name: "Pisang", cal: 89, prot: 1.1, fat: 0.3, carb: 23, per: 100, additives: [] },
+            { name: "Jeruk", cal: 47, prot: 0.9, fat: 0.1, carb: 12, per: 100, additives: [] }
+        ];
+
+        const additiveInfo = {
+            "E621": { name: "MSG (Monosodium Glutamat)", desc: "Penambah rasa, dapat menyebabkan sindrom restoran Cina pada individu sensitif", level: "caution" },
+            "E627": { name: "Disodium Guanylate", desc: "Penambah rasa sinergis dengan MSG", level: "caution" },
+            "E631": { name: "Disodium Inosinate", desc: "Penambah rasa, digunakan bersama MSG", level: "caution" },
+            "E150c": { name: "Karamel III", desc: "Pewarna makanan, berpotensi mengandung 4-MEI karsinogenik", level: "caution" },
+            "E150d": { name: "Karamel IV", desc: "Pewarna makanan dalam soda, berpotensi karsinogenik", level: "caution" },
+            "E250": { name: "Sodium Nitrit", desc: "Pengawet dalam daging olahan, berpotensi membentuk nitrosamin karsinogenik", level: "danger" },
+            "E316": { name: "Sodium Erythorbate", desc: "Antioksidan, umumnya aman", level: "safe" },
+            "E450": { name: "Difosfat", desc: "Pengemulsi dan penstabil, konsumsi berlebih dapat mengganggu keseimbangan mineral", level: "caution" },
+            "E452": { name: "Polifosfat", desc: "Pengikat air dalam daging, dapat mengganggu penyerapan kalsium", level: "caution" },
+            "E282": { name: "Kalsium Propionat", desc: "Pengawet anti jamur, aman dalam jumlah normal", level: "safe" },
+            "E471": { name: "Mono & Digliserida", desc: "Pengemulsi dari lemak, umumnya aman", level: "safe" },
+            "E322": { name: "Lesitin", desc: "Pengemulsi alami dari kedelai/telur, aman", level: "safe" },
+            "E503": { name: "Amonium Karbonat", desc: "Pengembang, aman untuk makanan", level: "safe" },
+            "E331": { name: "Sodium Sitrat", desc: "Pengatur keasaman, aman", level: "safe" },
+            "E338": { name: "Asam Fosfat", desc: "Pengatur keasaman, konsumsi berlebih dapat mempengaruhi kesehatan tulang", level: "caution" },
+            "E410": { name: "Locust Bean Gum", desc: "Pengental dari rumput laut, kontroversial terkait peradangan usus", level: "caution" },
+            "E412": { name: "Guar Gum", desc: "Pengental alami, aman", level: "safe" },
+            "E407": { name: "Karagenan", desc: "Penstabil dari rumput laut, beberapa studi menunjukkan potensi masalah pencernaan", level: "caution" },
+            "E211": { name: "Sodium Benzoat", desc: "Pengawet, dapat membentuk benzena dengan vitamin C", level: "caution" },
+            "E202": { name: "Potasium Sorbat", desc: "Pengawet, umumnya aman", level: "safe" },
+            "E110": { name: "Sunset Yellow FCF", desc: "Pewarna sintetis, terkait dengan hiperaktivitas pada anak", level: "danger" }
+        };
+
+        let selectedFood = null, addedFoods = [], dailyNeeds = { cal: 2000, prot: 60, fat: 65, carb: 300 };
+        let waterGlasses = 0;
+        const WATER_TARGET = 8, ML_PER_GLASS = 250;
+
+        // Initialize water glasses display
+        function initWaterGlasses() {
+            const container = document.getElementById('waterGlasses');
+            container.innerHTML = '';
+            for (let i = 0; i < WATER_TARGET; i++) {
+                const glass = document.createElement('div');
+                glass.className = 'water-glass';
+                glass.innerHTML = '<div class="water-fill" style="height: 0%"></div>';
+                glass.onclick = () => setWater(i + 1);
+                container.appendChild(glass);
+            }
+            updateWaterDisplay();
+        }
+
+        function setWater(count) {
+            waterGlasses = count;
+            updateWaterDisplay();
+        }
+
+        function addWater() {
+            if (waterGlasses < WATER_TARGET) {
+                waterGlasses++;
+                updateWaterDisplay();
+            }
+        }
+
+        function resetWater() {
+            waterGlasses = 0;
+            updateWaterDisplay();
+        }
+
+        function updateWaterDisplay() {
+            document.getElementById('waterCount').textContent = waterGlasses;
+            document.getElementById('waterMl').textContent = `${waterGlasses * ML_PER_GLASS} ml dari ${WATER_TARGET * ML_PER_GLASS} ml`;
+            document.getElementById('waterProgress').style.width = `${(waterGlasses / WATER_TARGET) * 100}%`;
+
+            const glasses = document.querySelectorAll('.water-glass');
+            glasses.forEach((glass, i) => {
+                const fill = glass.querySelector('.water-fill');
+                if (i < waterGlasses) {
+                    glass.classList.add('filled');
+                    fill.style.height = '100%';
+                } else {
+                    glass.classList.remove('filled');
+                    fill.style.height = '0%';
+                }
+            });
+        }
+
+        // BMI Calculator
+        function calculateBMI() {
+            const weight = +document.getElementById('weight').value;
+            const heightCm = +document.getElementById('height').value;
+            if (!weight || !heightCm) return;
+
+            const heightM = heightCm / 100;
+            const bmi = weight / (heightM * heightM);
+
+            document.getElementById('bmiValue').textContent = bmi.toFixed(1);
+
+            let status, statusClass, range, tip, indicatorPos;
+            if (bmi < 18.5) {
+                status = 'Kurus'; statusClass = 'bmi-underweight'; range = '< 18.5';
+                tip = '⚠️ Berat badan Anda kurang. Tingkatkan asupan kalori dengan makanan bergizi seimbang.';
+                indicatorPos = (bmi / 18.5) * 25;
+            } else if (bmi < 25) {
+                status = 'Normal'; statusClass = 'bmi-normal'; range = '18.5 - 24.9';
+                tip = '✅ Berat badan Anda ideal! Pertahankan pola makan seimbang dan olahraga teratur.';
+                indicatorPos = 25 + ((bmi - 18.5) / 6.5) * 25;
+            } else if (bmi < 30) {
+                status = 'Gemuk'; statusClass = 'bmi-overweight'; range = '25 - 29.9';
+                tip = '⚠️ Berat badan Anda berlebih. Kurangi kalori dan tingkatkan aktivitas fisik.';
+                indicatorPos = 50 + ((bmi - 25) / 5) * 25;
+            } else {
+                status = 'Obesitas'; statusClass = 'bmi-obese'; range = '≥ 30';
+                tip = '🚨 Anda mengalami obesitas. Konsultasikan dengan ahli gizi untuk program penurunan berat badan.';
+                indicatorPos = 75 + Math.min(((bmi - 30) / 10) * 25, 24);
+            }
+
+            const statusEl = document.getElementById('bmiStatus');
+            statusEl.textContent = status;
+            statusEl.className = 'bmi-status ' + statusClass;
+            document.getElementById('bmiRange').textContent = range;
+            document.getElementById('bmiTip').innerHTML = tip;
+            document.getElementById('bmiIndicator').style.left = indicatorPos + '%';
+        }
+
+        function calculateNeeds() {
+            const age = +document.getElementById('age').value;
+            const weight = +document.getElementById('weight').value;
+            const height = +document.getElementById('height').value;
+            const gender = document.getElementById('gender').value;
+            const activity = +document.getElementById('activity').value;
+            let bmr = gender === 'male' ? 10 * weight + 6.25 * height - 5 * age + 5 : 10 * weight + 6.25 * height - 5 * age - 161;
+            const tdee = Math.round(bmr * activity);
+            dailyNeeds = { cal: tdee, prot: Math.round(weight * 1.0), fat: Math.round(tdee * 0.25 / 9), carb: Math.round(tdee * 0.55 / 4) };
+            document.getElementById('needCal').textContent = dailyNeeds.cal + ' kkal';
+            document.getElementById('needProt').textContent = dailyNeeds.prot + ' g';
+            document.getElementById('needFat').textContent = dailyNeeds.fat + ' g';
+            document.getElementById('needCarb').textContent = dailyNeeds.carb + ' g';
+            updateNutritionDisplay();
+            calculateBMI();
+        }
+
+        function searchFood(query) {
+            const results = document.getElementById('searchResults');
+            if (query.length < 2) { results.classList.remove('active'); return; }
+            const filtered = foodDatabase.filter(f => f.name.toLowerCase().includes(query.toLowerCase()));
+            results.innerHTML = filtered.map(f => `<div class="search-item" onclick="selectFood('${f.name}')">${f.name} <small style="color:var(--text-muted)">${f.cal} kkal/100g</small></div>`).join('');
+            results.classList.add('active');
+        }
+
+        function selectFood(name) {
+            selectedFood = foodDatabase.find(f => f.name === name);
+            document.getElementById('foodSearch').value = name;
+            document.getElementById('searchResults').classList.remove('active');
+        }
+
+        function addSelectedFood() {
+            if (!selectedFood) return alert('Pilih makanan terlebih dahulu!');
+            const amount = +document.getElementById('foodAmount').value || 100;
+            addedFoods.push({ ...selectedFood, amount });
+            selectedFood = null;
+            document.getElementById('foodSearch').value = '';
+            renderFoodList();
+            updateNutritionDisplay();
+            updateAdditives();
+        }
+
+        function removeFood(index) {
+            addedFoods.splice(index, 1);
+            renderFoodList();
+            updateNutritionDisplay();
+            updateAdditives();
+        }
+
+        function renderFoodList() {
+            const list = document.getElementById('foodList');
+            if (addedFoods.length === 0) {
+                list.innerHTML = '<div class="empty-state"><span>🥗</span>Belum ada makanan ditambahkan</div>';
+                return;
+            }
+            list.innerHTML = addedFoods.map((f, i) => `<div class="food-item"><div class="food-item-info"><div class="food-item-name">${f.name}</div><div class="food-item-cal">${f.amount}g • ${Math.round(f.cal * f.amount / 100)} kkal</div></div><button class="remove-btn" onclick="removeFood(${i})">×</button></div>`).join('');
+        }
+
+        function updateNutritionDisplay() {
+            let totals = { cal: 0, prot: 0, fat: 0, carb: 0 };
+            addedFoods.forEach(f => {
+                const mult = f.amount / 100;
+                totals.cal += f.cal * mult;
+                totals.prot += f.prot * mult;
+                totals.fat += f.fat * mult;
+                totals.carb += f.carb * mult;
+            });
+            document.getElementById('totalCalories').textContent = Math.round(totals.cal);
+            document.getElementById('totalProtein').textContent = totals.prot.toFixed(1);
+            document.getElementById('totalFat').textContent = totals.fat.toFixed(1);
+            document.getElementById('totalCarbs').textContent = totals.carb.toFixed(1);
+            document.getElementById('calProgress').style.width = Math.min(100, (totals.cal / dailyNeeds.cal) * 100) + '%';
+            document.getElementById('protProgress').style.width = Math.min(100, (totals.prot / dailyNeeds.prot) * 100) + '%';
+            document.getElementById('fatProgress').style.width = Math.min(100, (totals.fat / dailyNeeds.fat) * 100) + '%';
+            document.getElementById('carbProgress').style.width = Math.min(100, (totals.carb / dailyNeeds.carb) * 100) + '%';
+        }
+
+        function updateAdditives() {
+            const container = document.getElementById('additivesList');
+            const allAdditives = [...new Set(addedFoods.flatMap(f => f.additives))];
+            if (allAdditives.length === 0) {
+                container.innerHTML = addedFoods.length > 0 ? '<div class="empty-state"><span>✅</span>Tidak ada zat aditif terdeteksi! Makanan Anda alami.</div>' : '<div class="empty-state"><span>🧪</span>Tambahkan makanan untuk melihat analisis zat aditif</div>';
+                return;
+            }
+            container.innerHTML = allAdditives.map(code => {
+                const info = additiveInfo[code] || { name: code, desc: 'Info tidak tersedia', level: 'caution' };
+                return `<div class="additive-item ${info.level}"><div class="additive-name">${code} - ${info.name} <span class="badge badge-${info.level}">${info.level === 'safe' ? 'Aman' : info.level === 'caution' ? 'Perhatian' : 'Bahaya'}</span></div><div class="additive-desc">${info.desc}</div></div>`;
+            }).join('');
+        }
+
+        // Initialize
+        initWaterGlasses();
+        calculateNeeds();
+        document.addEventListener('click', e => { if (!e.target.closest('.food-search')) document.getElementById('searchResults').classList.remove('active'); });
+    </script>
+</body>
+
+</html>
