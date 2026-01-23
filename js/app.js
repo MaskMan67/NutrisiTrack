@@ -1,0 +1,585 @@
+/**
+ * NutriScan - Main Application Module
+ * Initializes and coordinates all modules
+ */
+
+// Import modules
+import { saveProfile, loadProfile, saveFoods, loadFoods, clearAllData } from './storage.js';
+import { calculateDailyNeeds, calculateFoodTotals, getBMIIndicatorPosition, ACTIVITY_LEVELS } from './calculator.js';
+import { foodDatabase, searchFoods, getFoodByName, getAdditiveInfo, getUniqueAdditives } from './foodDatabase.js';
+import { initHydration, addWater, resetWater, getWaterCount, isWaterTargetReached } from './hydration.js';
+import { initStreak, getStreak, getStreakMessage } from './streak.js';
+
+// ============================================
+// State
+// ============================================
+let selectedFood = null;
+let addedFoods = [];
+let dailyNeeds = null;
+let nutritionChart = null;
+
+// ============================================
+// DOM Elements (cached on init)
+// ============================================
+const elements = {};
+
+// ============================================
+// Initialization
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    // Cache DOM elements
+    cacheElements();
+
+    // Initialize modules
+    initStreak();
+    initHydration();
+
+    // Load saved data
+    loadSavedData();
+
+    // Setup event listeners
+    setupEventListeners();
+
+    // Initial calculations
+    calculateAndDisplay();
+
+    // Register service worker
+    registerServiceWorker();
+
+    console.log('🔬 NutriScan initialized successfully!');
+});
+
+/**
+ * Cache frequently accessed DOM elements
+ */
+function cacheElements() {
+    // Profile inputs
+    elements.age = document.getElementById('age');
+    elements.weight = document.getElementById('weight');
+    elements.height = document.getElementById('height');
+    elements.gender = document.getElementById('gender');
+    elements.activity = document.getElementById('activity');
+
+    // BMI display
+    elements.bmiValue = document.getElementById('bmiValue');
+    elements.bmiStatus = document.getElementById('bmiStatus');
+    elements.bmiIndicator = document.getElementById('bmiIndicator');
+    elements.bmiTip = document.getElementById('bmiTip');
+
+    // Food search
+    elements.foodSearch = document.getElementById('foodSearch');
+    elements.searchResults = document.getElementById('searchResults');
+    elements.mealTime = document.getElementById('mealTime');
+    elements.foodAmount = document.getElementById('foodAmount');
+    elements.foodList = document.getElementById('foodList');
+
+    // Additives
+    elements.additivesList = document.getElementById('additivesList');
+
+    // Nutrition
+    elements.totalCalories = document.getElementById('totalCalories');
+    elements.totalProtein = document.getElementById('totalProtein');
+    elements.totalFat = document.getElementById('totalFat');
+    elements.totalCarbs = document.getElementById('totalCarbs');
+    elements.needCal = document.getElementById('needCal');
+    elements.needProt = document.getElementById('needProt');
+    elements.needFat = document.getElementById('needFat');
+    elements.needCarb = document.getElementById('needCarb');
+    elements.nutritionChart = document.getElementById('nutritionChart');
+
+    // Modal
+    elements.chemModal = document.getElementById('chemModal');
+    elements.modalTitle = document.getElementById('modalTitle');
+    elements.modalBadge = document.getElementById('modalBadge');
+    elements.modalFormula = document.getElementById('modalFormula');
+    elements.modalStructure = document.getElementById('modalStructure');
+    elements.modalDesc = document.getElementById('modalDesc');
+    elements.modalImpact = document.getElementById('modalImpact');
+
+    // Toast
+    elements.toast = document.getElementById('toast');
+}
+
+/**
+ * Load saved data from LocalStorage
+ */
+function loadSavedData() {
+    // Load profile
+    const savedProfile = loadProfile();
+    if (savedProfile) {
+        elements.age.value = savedProfile.age || 17;
+        elements.weight.value = savedProfile.weight || 60;
+        elements.height.value = savedProfile.height || 165;
+        elements.gender.value = savedProfile.gender || 'male';
+        elements.activity.value = savedProfile.activity || 1.55;
+    }
+
+    // Load foods
+    addedFoods = loadFoods();
+}
+
+/**
+ * Setup all event listeners
+ */
+function setupEventListeners() {
+    // Profile input changes
+    ['age', 'weight', 'height', 'gender', 'activity'].forEach(id => {
+        elements[id].addEventListener('change', () => {
+            saveCurrentProfile();
+            calculateAndDisplay();
+        });
+    });
+
+    // BMI live update on weight/height input
+    elements.weight.addEventListener('input', calculateAndDisplay);
+    elements.height.addEventListener('input', calculateAndDisplay);
+
+    // Food search
+    elements.foodSearch.addEventListener('input', (e) => {
+        handleFoodSearch(e.target.value);
+    });
+
+    // Close search when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.food-search')) {
+            elements.searchResults.classList.remove('active');
+        }
+    });
+
+    // Modal close on overlay click
+    elements.chemModal.addEventListener('click', (e) => {
+        if (e.target === elements.chemModal) {
+            closeModal();
+        }
+    });
+
+    // Keyboard escape closes modal
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+        }
+    });
+}
+
+// ============================================
+// Profile & Calculations
+// ============================================
+
+/**
+ * Save current profile to LocalStorage
+ */
+function saveCurrentProfile() {
+    const profile = {
+        age: elements.age.value,
+        weight: elements.weight.value,
+        height: elements.height.value,
+        gender: elements.gender.value,
+        activity: elements.activity.value
+    };
+    saveProfile(profile);
+    showToast('Data tersimpan');
+}
+
+/**
+ * Calculate and display all nutritional data
+ */
+function calculateAndDisplay() {
+    const profile = {
+        age: +elements.age.value || 17,
+        weight: +elements.weight.value || 60,
+        height: +elements.height.value || 165,
+        gender: elements.gender.value || 'male',
+        activity: +elements.activity.value || 1.55
+    };
+
+    // Calculate daily needs
+    dailyNeeds = calculateDailyNeeds(profile);
+
+    // Update BMI display
+    updateBMIDisplay();
+
+    // Update daily needs display
+    updateDailyNeedsDisplay();
+
+    // Update nutrition totals
+    updateNutritionDisplay();
+}
+
+/**
+ * Update BMI visual display
+ */
+function updateBMIDisplay() {
+    if (!dailyNeeds) return;
+
+    elements.bmiValue.textContent = dailyNeeds.bmi;
+    elements.bmiStatus.textContent = dailyNeeds.bmiCategory.label;
+    elements.bmiStatus.style.color = dailyNeeds.bmiCategory.color;
+    elements.bmiTip.textContent = dailyNeeds.bmiCategory.tip;
+
+    // Update indicator position
+    const position = getBMIIndicatorPosition(parseFloat(dailyNeeds.bmi));
+    elements.bmiIndicator.style.left = position + '%';
+}
+
+/**
+ * Update daily needs display
+ */
+function updateDailyNeedsDisplay() {
+    if (!dailyNeeds) return;
+
+    elements.needCal.textContent = dailyNeeds.calories + ' kkal';
+    elements.needProt.textContent = dailyNeeds.protein + 'g';
+    elements.needFat.textContent = dailyNeeds.fat + 'g';
+    elements.needCarb.textContent = dailyNeeds.carbs + 'g';
+}
+
+// ============================================
+// Food Management
+// ============================================
+
+/**
+ * Handle food search input
+ */
+function handleFoodSearch(query) {
+    const results = searchFoods(query);
+
+    if (results.length === 0) {
+        elements.searchResults.classList.remove('active');
+        return;
+    }
+
+    elements.searchResults.innerHTML = results.map(food => `
+        <div class="search-item" data-food="${food.name}">
+            <span class="search-item__name">${food.name}</span>
+            <span class="search-item__cal">${food.cal} kkal/100g</span>
+        </div>
+    `).join('');
+
+    elements.searchResults.classList.add('active');
+
+    // Add click handlers to results
+    elements.searchResults.querySelectorAll('.search-item').forEach(item => {
+        item.addEventListener('click', () => {
+            selectFood(item.dataset.food);
+        });
+    });
+}
+
+/**
+ * Select a food from search results
+ */
+function selectFood(name) {
+    selectedFood = getFoodByName(name);
+    elements.foodSearch.value = name;
+    elements.searchResults.classList.remove('active');
+}
+
+/**
+ * Add selected food to the list (global function for onclick)
+ */
+window.addSelectedFood = function () {
+    if (!selectedFood) {
+        showToast('Pilih makanan dulu!', 'warning');
+        return;
+    }
+
+    const amount = +elements.foodAmount.value || 100;
+    const meal = elements.mealTime.value;
+
+    addedFoods.push({
+        ...selectedFood,
+        amount,
+        meal
+    });
+
+    // Save and reset
+    saveFoods(addedFoods);
+    selectedFood = null;
+    elements.foodSearch.value = '';
+
+    // Update displays
+    renderFoodList();
+    updateNutritionDisplay();
+
+    showToast('Makanan ditambahkan');
+};
+
+/**
+ * Remove food from list (global function for onclick)
+ */
+window.removeFood = function (index) {
+    addedFoods.splice(index, 1);
+    saveFoods(addedFoods);
+    renderFoodList();
+    updateNutritionDisplay();
+};
+
+/**
+ * Render the food list grouped by meal time
+ */
+function renderFoodList() {
+    if (addedFoods.length === 0) {
+        elements.foodList.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state__icon">🥗</div>
+                <div>Belum ada menu hari ini</div>
+            </div>
+        `;
+        elements.additivesList.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state__icon">🧪</div>
+                <div>Data zat aditif akan muncul di sini</div>
+            </div>
+        `;
+        return;
+    }
+
+    // Group foods by meal
+    const grouped = addedFoods.reduce((acc, food, index) => {
+        const meal = food.meal || 'Lainnya';
+        if (!acc[meal]) acc[meal] = [];
+        acc[meal].push({ ...food, index });
+        return acc;
+    }, {});
+
+    // Render grouped list
+    const mealOrder = ['Sarapan', 'Makan Siang', 'Makan Malam', 'Snack', 'Lainnya'];
+
+    elements.foodList.innerHTML = mealOrder.map(meal => {
+        if (!grouped[meal]) return '';
+
+        return `
+            <div class="meal-group">
+                <h4 class="meal-group__title">${meal}</h4>
+                ${grouped[meal].map(f => `
+                    <div class="food-item">
+                        <div>
+                            <div class="food-item__name">${f.name}</div>
+                            <div class="food-item__details">${f.amount}g • ${Math.round(f.cal * f.amount / 100)} kkal</div>
+                        </div>
+                        <button class="food-item__remove" onclick="removeFood(${f.index})">×</button>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }).join('');
+
+    // Render additives
+    renderAdditives();
+}
+
+/**
+ * Render additives list
+ */
+function renderAdditives() {
+    const additives = getUniqueAdditives(addedFoods);
+
+    if (additives.length === 0) {
+        elements.additivesList.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state__icon">✅</div>
+                <div>Makanan Bebas Zat Aditif!</div>
+            </div>
+        `;
+        return;
+    }
+
+    const levelLabels = { safe: 'Aman', caution: 'Perhatian', danger: 'Bahaya' };
+
+    elements.additivesList.innerHTML = additives.map(code => {
+        const info = getAdditiveInfo(code);
+        return `
+            <div class="additive-item additive-item--${info.level}" onclick="showAdditiveModal('${code}')">
+                <div class="additive-item__header">
+                    <span class="additive-item__name">${code} - ${info.name}</span>
+                    <span class="badge badge--${info.level}">${levelLabels[info.level]}</span>
+                </div>
+                <div class="additive-item__desc">${info.desc}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+// ============================================
+// Nutrition Display & Chart
+// ============================================
+
+/**
+ * Update nutrition totals and chart
+ */
+function updateNutritionDisplay() {
+    const totals = calculateFoodTotals(addedFoods);
+
+    // Update text
+    elements.totalCalories.textContent = Math.round(totals.calories);
+    elements.totalProtein.textContent = totals.protein.toFixed(1);
+    elements.totalFat.textContent = totals.fat.toFixed(1);
+    elements.totalCarbs.textContent = totals.carbs.toFixed(1);
+
+    // Update chart
+    updateNutritionChart(totals);
+}
+
+/**
+ * Update or create nutrition doughnut chart
+ */
+function updateNutritionChart(totals) {
+    const ctx = elements.nutritionChart.getContext('2d');
+
+    const data = [totals.protein, totals.fat, totals.carbs];
+    const hasData = data.some(v => v > 0);
+
+    if (nutritionChart) {
+        nutritionChart.data.datasets[0].data = hasData ? data : [1, 1, 1];
+        nutritionChart.update();
+    } else {
+        nutritionChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Protein', 'Lemak', 'Karbohidrat'],
+                datasets: [{
+                    data: hasData ? data : [1, 1, 1],
+                    backgroundColor: hasData
+                        ? ['#3b82f6', '#f59e0b', '#22c55e']
+                        : ['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.1)', 'rgba(255,255,255,0.1)'],
+                    borderWidth: 0,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: hasData,
+                        callbacks: {
+                            label: (ctx) => `${ctx.label}: ${ctx.raw.toFixed(1)}g`
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+    }
+}
+
+// ============================================
+// Modal
+// ============================================
+
+/**
+ * Show additive detail modal (global function for onclick)
+ */
+window.showAdditiveModal = function (code) {
+    const info = getAdditiveInfo(code);
+
+    elements.modalTitle.textContent = `${code} - ${info.name}`;
+    elements.modalFormula.textContent = info.formula;
+    elements.modalStructure.textContent = info.structure || '-';
+    elements.modalDesc.textContent = info.desc;
+    elements.modalImpact.textContent = info.impact;
+
+    // Update badge
+    const levelLabels = { safe: 'Aman', caution: 'Perhatian', danger: 'Bahaya' };
+    elements.modalBadge.textContent = levelLabels[info.level];
+    elements.modalBadge.className = `badge badge--${info.level}`;
+
+    elements.chemModal.classList.add('active');
+};
+
+/**
+ * Close modal (global function)
+ */
+window.closeModal = function () {
+    elements.chemModal.classList.remove('active');
+};
+
+// ============================================
+// Water & Other Actions
+// ============================================
+
+/**
+ * Add water (global function for onclick)
+ */
+window.handleAddWater = function () {
+    const added = addWater();
+    if (added) {
+        if (isWaterTargetReached()) {
+            showToast('🎉 Target hidrasi tercapai!', 'success');
+        } else {
+            showToast('💧 +1 gelas');
+        }
+    } else {
+        showToast('Target sudah tercapai!', 'warning');
+    }
+};
+
+/**
+ * Reset water (global function for onclick)
+ */
+window.handleResetWater = function () {
+    resetWater();
+    showToast('Water tracker direset');
+};
+
+/**
+ * Calculate needs button (global function for onclick)
+ */
+window.handleCalculateNeeds = function () {
+    saveCurrentProfile();
+    calculateAndDisplay();
+    showToast('Kebutuhan dihitung ulang');
+};
+
+/**
+ * Clear all data (global function for onclick)
+ */
+window.handleClearData = function () {
+    if (confirm('Yakin ingin menghapus semua data? Ini akan mereset progress Anda.')) {
+        clearAllData();
+        location.reload();
+    }
+};
+
+// ============================================
+// Toast Notifications
+// ============================================
+
+let toastTimeout = null;
+
+/**
+ * Show toast notification
+ */
+function showToast(message, type = 'info') {
+    const icons = { info: '💾', success: '✅', warning: '⚠️', error: '❌' };
+
+    elements.toast.innerHTML = `
+        <span class="toast__icon">${icons[type]}</span>
+        <span class="toast__message">${message}</span>
+    `;
+
+    elements.toast.classList.add('show');
+
+    if (toastTimeout) clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
+        elements.toast.classList.remove('show');
+    }, 2500);
+}
+
+// ============================================
+// Service Worker
+// ============================================
+
+/**
+ * Register service worker for PWA
+ */
+function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./service-worker.js')
+                .then(reg => console.log('✅ Service Worker registered:', reg.scope))
+                .catch(err => console.log('❌ Service Worker failed:', err));
+        });
+    }
+}

@@ -1,42 +1,108 @@
-# NutriScan 🔬
+# 🔬 NutriScan
 
-**Kalkulator Gizi & Zat Aditif Berbasis Sains**
+**Kalkulator Gizi & Analisis Zat Aditif Berbasis Sains**
 
-NutriScan adalah aplikasi web interaktif yang membantu pengguna memantau asupan nutrisi harian dan menganalisis kandungan zat aditif dalam makanan. Proyek ini dibuat sebagai Tugas Akhir SMA untuk materi Biologi (Sistem Pencernaan & Nutrisi) dan Kimia (Zat Aditif).
+Aplikasi web edukatif untuk membantu pengguna memahami kebutuhan nutrisi harian, menganalisis zat gizi makro, dan mengenali zat aditif makanan beserta dampak kesehatannya.
+
+---
 
 ## ✨ Fitur Utama
 
-- **👤 Profil Pengguna Cerdas**: Menghitung kebutuhan kalori harian (BMR & TDEE) berdasarkan umur, berat, tinggi, dan aktivitas.
-- **⚖️ Kalkulator BMI**: Menghitung Indeks Massa Tubuh dengan indikator visual dan tips kesehatan.
-- **🍽️ Database Makanan Lokal**: Input makanan Indonesia (Nasi, Tempe, Ayam, dll) dengan data nutrisi lengkap.
-- **⚗️ Analisis Zat Aditif**: Deteksi otomatis kode E-number (MSG, Pengawet, Pewarna) dengan peringatan keamanan (Aman/Perhatian/Bahaya).
-- **💧 Water Tracker**: Memantau hidrasi harian dengan animasi gelas interaktif.
-- **📊 Ringkasan Nutrisi**: Grafik progres kalori, protein, lemak, dan karbohidrat real-time.
+### � Kalkulator Gizi
+- **BMR** (Basal Metabolic Rate) - Mifflin-St Jeor Equation
+- **TDEE** (Total Daily Energy Expenditure)
+- **BMI** (Body Mass Index) dengan indikator visual
 
-## 🚀 Cara Menggunakan
+### 🍽️ Pelacak Makanan
+- 72+ makanan Indonesia dengan data nutrisi akurat
+- Kategorisasi per waktu makan (Sarapan, Siang, Malam, Snack)
+- Grafik distribusi makronutrien (Chart.js)
 
-1.  Buka aplikasi di browser (Desktop/Mobile).
-2.  Isi data diri di panel **Profil Pengguna** untuk mendapatkan target nutrisi harian.
-3.  Gunakan fitur **Tambah Makanan** untuk mencari dan memasukkan menu harian Anda.
-4.  Lihat analisis gizi dan peringatan zat aditif di panel kanan.
-5.  Jangan lupa catat minum air di panel **Hidrasi Harian**!
+### ⚗️ Analisis Zat Aditif
+- 35+ zat aditif dengan informasi lengkap:
+  - Rumus kimia & struktur molekul
+  - Fungsi dalam makanan
+  - Dampak kesehatan
+  - Level keamanan (Aman/Perhatian/Bahaya)
 
-## 🛠️ Teknologi
+### � Hidrasi Harian
+- Target 8 gelas air per hari
+- Animasi visual level air
+- Progress bar tracking
 
-- **HTML5**: Struktur semantik.
-- **CSS3**: Styling modern (Glassmorphism, Gradient, Dark Mode) tanpa framework.
-- **JavaScript**: Logika kalkulasi, database lokal, dan interaktivitas DOM.
+### 🔥 Gamifikasi Streak
+- Sistem streak harian
+- Level pengguna (Pemula → Legenda)
+- Pesan motivasi
 
-## 📦 Instalasi & Pengembangan
+### 📱 PWA Ready
+- Installable (Android & iOS)
+- Offline support
+- Responsive design
 
-Cukup clone repository ini dan buka `index.html` di browser Anda. Tidak perlu instalasi server atau dependensi (Node.js/Python) karena ini adalah aplikasi *Static Web* murni.
+---
 
-```bash
-git clone https://github.com/username-anda/NutriScan.git
-cd NutriScan
-# Buka index.html di browser
+## �️ Teknologi
+
+| Kategori | Teknologi |
+|----------|-----------|
+| Frontend | HTML5, CSS3 (Glassmorphism), JavaScript ES6+ |
+| Arsitektur | Modular (6 JS modules) |
+| Chart | Chart.js |
+| PWA | Service Worker, Web Manifest |
+| Data | LocalStorage |
+
+---
+
+## 📁 Struktur Proyek
+
+```
+NutriScan/
+├── index.html              # Main HTML
+├── css/
+│   └── style.css           # Design system
+├── js/
+│   ├── storage.js          # LocalStorage management
+│   ├── calculator.js       # BMR/TDEE/BMI calculations
+│   ├── foodDatabase.js     # Indonesian food database
+│   ├── hydration.js        # Water tracker
+│   ├── streak.js           # Daily streak system
+│   └── app.js              # Main app coordinator
+├── icons/
+│   ├── icon-192.png
+│   └── icon-512.png
+├── manifest.json           # PWA manifest
+└── service-worker.js       # Offline caching
 ```
 
-## 📝 Lisensi
+---
 
-Dibuat untuk tujuan pendidikan.
+## 🚀 Cara Menjalankan
+
+1. Clone repository ini
+2. Jalankan local server:
+   ```bash
+   npx -y serve -l 3000
+   ```
+3. Buka `http://localhost:3000`
+
+---
+
+## � Referensi Ilmiah
+
+- **BMR**: Mifflin MD, St Jeor ST, et al. (1990). "A new predictive equation for resting energy expenditure in healthy individuals"
+- **BMI Categories**: WHO Classification
+- **Data Nutrisi**: TKPI (Tabel Komposisi Pangan Indonesia) - Kemenkes RI
+- **Zat Aditif**: European Food Safety Authority (EFSA) - E-number Database
+
+---
+
+## ⚠️ Disclaimer
+
+Aplikasi ini bersifat **edukatif** dan **bukan pengganti konsultasi medis profesional**. Untuk masalah kesehatan serius, selalu konsultasikan dengan dokter atau ahli gizi.
+
+---
+
+## � Lisensi
+
+Dibuat untuk Tugas Akhir SMA | © 2026 NutriScan

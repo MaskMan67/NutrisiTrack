@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Kalkulator Gizi & Zat Aditif Berbasis Sains untuk pelajar Indonesia">
+
+    <title>NutriScan - Kalkulator Gizi & Zat Aditif</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <!-- Fonts & External Libraries -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <!-- App Styles -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Chart.js with defer -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+</head>
+
+<body>
+    <div class="container animate__animated animate__fadeIn">
+        <header>
+            <h1>🔬 NutriScan</h1>
+            <p>Kalkulator Gizi & Zat Aditif Berbasis Sains</p>
+            <div id="streakDisplay"
+                style="margin-top: 0.5rem; font-weight: bold; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);">
+                🔥 0 Hari Streak
+            </div>
+        </header>
+
+        <!-- BMI & Water Tracker Row -->
+        <div class="grid-3">
+            <div class="card">
+                <h2><span>👤</span> Profil Pengguna</h2>
+                <div class="form-group">
+                    <label>Umur (thn) & Berat (kg)</label>
+                    <div class="inline-form">
+                        <input type="number" id="age" placeholder="17" value="17" onchange="saveData()">
+                        <input type="number" id="weight" placeholder="60" value="60"
+                            oninput="calculateBMI(); saveData()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Tinggi (cm) & Gender</label>
+                    <div class="inline-form">
+                        <input type="number" id="height" placeholder="165" value="165"
+                            oninput="calculateBMI(); saveData()">
+                        <select id="gender" onchange="saveData()">
+                            <option value="male">Laki-laki</option>
+                            <option value="female">Perempuan</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Tingkat Aktivitas</label>
+                    <select id="activity" onchange="saveData()">
+                        <option value="1.2">Sedentari (jarang olahraga)</option>
+                        <option value="1.375">Ringan (1-3x/minggu)</option>
+                        <option value="1.55" selected>Moderat (3-5x/minggu)</option>
+                        <option value="1.725">Aktif (6-7x/minggu)</option>
+                        <option value="1.9">Sangat Aktif (atlet)</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="calculateNeeds()">🔄 Hitung Kebutuhan</button>
+                <button class="btn btn-secondary" onclick="clearAllData()"
+                    style="margin-top: 0.8rem; width: 100%; color: #ff416c; border-color: rgba(255, 65, 108, 0.3);">🗑️
+                    Reset Semua Data</button>
+            </div>
+
+            <div class="card">
+                <h2><span>⚖️</span> Indeks Massa Tubuh</h2>
+                <div style="text-align: center; padding: 1rem 0;">
+                    <div id="bmiValue" style="font-size: 3.5rem; font-weight: 700; line-height: 1;">22.0</div>
+                    <div id="bmiStatus"
+                        style="font-size: 1.2rem; margin: 0.5rem 0; color: var(--primary); font-weight: 600;">Normal
+                    </div>
+                    <div
+                        style="height: 10px; background: linear-gradient(90deg, #3b82f6, #10b981, #f59e0b, #ef4444); border-radius: 5px; position: relative; margin: 1rem 0;">
+                        <div id="bmiIndicator"
+                            style="position: absolute; top: -5px; width: 20px; height: 20px; background: white; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: left 0.5s; left: 50%; transform: translateX(-50%);">
+                        </div>
+                    </div>
+                    <p id="bmiTip"
+                        style="font-size: 0.85rem; color: var(--text-muted); background: rgba(0,0,0,0.2); padding: 0.8rem; border-radius: 12px;">
+                        ✅ Berat badan ideal. Pertahankan!</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span>💧</span> Hidrasi Harian</h2>
+                <div class="water-tracker">
+                    <div class="water-visual">
+                        <div class="water-big-glass">
+                            <div class="water-level" id="waterLevel" style="height: 0%"></div>
+                        </div>
+                        <div style="margin-left: 1.5rem; text-align: left;">
+                            <div style="font-size: 2.5rem; font-weight: 700;" id="waterCount">0</div>
+                            <div style="color: var(--text-muted); font-size: 0.9rem;">Gelas (250ml)</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="waterProgressBar" style="width: 0%; background: #3b82f6;"></div>
+                    </div>
+                    <div class="water-controls">
+                        <button class="water-btn water-add" onclick="addWater()">+ Minum</button>
+                        <button class="water-btn water-reset" onclick="resetWater()">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <h2><span>🍽️</span> Tambah Makanan</h2>
+                    <div class="form-group food-search">
+                        <input type="text" id="foodSearch" placeholder="🔍 Cari makanan (Cth: Nasi, Ayam)..."
+                            oninput="searchFood(this.value)" autocomplete="off">
+                        <div class="search-results" id="searchResults"></div>
+                    </div>
+                    <div class="form-group inline-form">
+                        <select id="mealTime">
+                            <option value="Sarapan">🌅 Sarapan</option>
+                            <option value="Makan Siang">☀️ Makan Siang</option>
+                            <option value="Makan Malam">🌙 Makan Malam</option>
+                            <option value="Snack">🍿 Snack</option>
+                        </select>
+                        <input type="number" id="foodAmount" placeholder="Gram" value="100">
+                        <button class="btn btn-secondary" onclick="addSelectedFood()">Tambah</button>
+                    </div>
+                    <div class="food-list" id="foodList">
+                        <div class="empty-state"><span>🥗</span>Belum ada menu hari ini</div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 1.5rem;">
+                    <h2><span>⚗️</span> Analisis Zat Aditif</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Klik pada zat aditif
+                        untuk melihat detail kimia & dampaknya.</p>
+                    <div class="additives-list" id="additivesList">
+                        <div class="empty-state"><span>🧪</span>Data zat aditif akan muncul di sini</div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card mobile-stack">
+                    <h2><span>📊</span> Ringkasan Nutrisi</h2>
+                    <div class="chart-container">
+                        <canvas id="nutritionChart"></canvas>
+                    </div>
+                    <div
+                        style="text-align: center; margin-top: 1rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; font-size: 0.9rem;">
+                        <div style="color: #ff6384;">Kalori: <span id="totalCalories">0</span></div>
+                        <div style="color: #36a2eb;">Protein: <span id="totalProtein">0</span>g</div>
+                        <div style="color: #ffcd56;">Lemak: <span id="totalFat">0</span>g</div>
+                        <div style="color: #4bc0c0;">Karbo: <span id="totalCarbs">0</span>g</div>
+                    </div>
+                    <div
+                        style="margin-top: 1.5rem; padding: 1rem; background: rgba(16,185,129,0.1); border-radius: 12px; border: 1px solid rgba(16,185,129,0.2);">
+                        <h3 style="font-size: 0.9rem; color: var(--primary); margin-bottom: 0.5rem;">🎯 Target Harian
+                            Anda</h3>
+                        <div
+                            style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.2rem 0; border-bottom: 1px dashed rgba(255,255,255,0.1);">
+                            <span>Kalori</span><strong id="needCal">0</strong>
+                        </div>
+                        <div
+                            style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.2rem 0; border-bottom: 1px dashed rgba(255,255,255,0.1);">
+                            <span>Protein</span><strong id="needProt">0</strong>
+                        </div>
+                        <div
+                            style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.2rem 0; border-bottom: 1px dashed rgba(255,255,255,0.1);">
+                            <span>Lemak</span><strong id="needFat">0</strong>
+                        </div>
+                        <div
+                            style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.2rem 0;">
+                            <span>Karbo</span><strong id="needCarb">0</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chemical Detail Modal -->
+    <div class="modal-overlay" id="chemModal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <h2 id="modalTitle" style="color: var(--text); margin-bottom: 0.5rem; padding-right: 2rem;">E621 - MSG</h2>
+            <div id="modalBadge" class="chem-badge" style="background: rgba(245,158,11,0.2); color: var(--warning);">
+                Perhatian</div>
+
+            <div style="margin: 1.5rem 0;">
+                <label style="font-size: 0.8rem; color: var(--text-muted);">RUMUS KIMIA</label>
+                <div id="modalFormula" class="chem-formula">C₅H₈NO₄Na</div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="font-size: 0.8rem; color: var(--text-muted);">FUNGSI & DESKRIPSI</label>
+                <p id="modalDesc" style="line-height: 1.6;">Deskripsi zat aditif...</p>
+            </div>
+
+            <div
+                style="background: rgba(239,68,68,0.1); padding: 1rem; border-radius: 12px; border: 1px solid rgba(239,68,68,0.2);">
+                <label style="font-size: 0.8rem; color: var(--danger); font-weight: 700;">⚠️ DAMPAK KESEHATAN</label>
+                <p id="modalImpact" style="font-size: 0.9rem; margin-top: 0.5rem;">Efek samping...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span style="font-size: 1.2rem;">💾</span>
+        <span>Data tersimpan otomatis</span>
+    </div>
+
+    <!-- App Script -->
+    <script src="app.js" defer></script>
+</body>
+
+</html>
