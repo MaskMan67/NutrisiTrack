@@ -140,7 +140,126 @@
             </div>
         </div>
 
-        <!-- ========== ROW 2: Food & Nutrition ========== -->
+        <!-- ========== ROW 2: Statistics Dashboard ========== -->
+        <div class="grid-row grid-2">
+            <!-- Daily Progress Card -->
+            <div class="card stats-card">
+                <div class="card__header">
+                    <span class="card__icon">📊</span>
+                    <h2 class="card__title">Progress Hari Ini</h2>
+                </div>
+
+                <div class="progress-stats">
+                    <!-- Calories Progress -->
+                    <div class="progress-stat">
+                        <div class="progress-stat__header">
+                            <span class="progress-stat__label">🔥 Kalori</span>
+                            <span class="progress-stat__values" id="caloriesProgress">0 / 0 kkal</span>
+                        </div>
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill progress-bar-fill--calories" id="caloriesBar"
+                                style="width: 0%"></div>
+                        </div>
+                        <span class="progress-stat__percent" id="caloriesPercent">0%</span>
+                    </div>
+
+                    <!-- Protein Progress -->
+                    <div class="progress-stat">
+                        <div class="progress-stat__header">
+                            <span class="progress-stat__label">🥩 Protein</span>
+                            <span class="progress-stat__values" id="proteinProgress">0 / 0g</span>
+                        </div>
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill progress-bar-fill--protein" id="proteinBar" style="width: 0%">
+                            </div>
+                        </div>
+                        <span class="progress-stat__percent" id="proteinPercent">0%</span>
+                    </div>
+
+                    <!-- Fat Progress -->
+                    <div class="progress-stat">
+                        <div class="progress-stat__header">
+                            <span class="progress-stat__label">🧈 Lemak</span>
+                            <span class="progress-stat__values" id="fatProgress">0 / 0g</span>
+                        </div>
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill progress-bar-fill--fat" id="fatBar" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-stat__percent" id="fatPercent">0%</span>
+                    </div>
+
+                    <!-- Carbs Progress -->
+                    <div class="progress-stat">
+                        <div class="progress-stat__header">
+                            <span class="progress-stat__label">🍚 Karbohidrat</span>
+                            <span class="progress-stat__values" id="carbsProgress">0 / 0g</span>
+                        </div>
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill progress-bar-fill--carbs" id="carbsBar" style="width: 0%">
+                            </div>
+                        </div>
+                        <span class="progress-stat__percent" id="carbsPercent">0%</span>
+                    </div>
+                </div>
+
+                <!-- Remaining Display -->
+                <div class="remaining-display" id="remainingDisplay">
+                    <div class="remaining-display__title">Sisa Kebutuhan Hari Ini:</div>
+                    <div class="remaining-display__values">
+                        <span class="remaining-item remaining-item--calories" id="remainingCalories">0 kkal</span>
+                        <span class="remaining-item remaining-item--protein" id="remainingProtein">0g protein</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BMR & TDEE Info Card -->
+            <div class="card energy-card">
+                <div class="card__header">
+                    <span class="card__icon">⚡</span>
+                    <h2 class="card__title">Kebutuhan Energi</h2>
+                </div>
+
+                <div class="energy-stats">
+                    <div class="energy-stat">
+                        <div class="energy-stat__icon">🔋</div>
+                        <div class="energy-stat__info">
+                            <div class="energy-stat__label">BMR (Basal Metabolic Rate)</div>
+                            <div class="energy-stat__value" id="bmrValue">0 kkal/hari</div>
+                            <div class="energy-stat__desc">Energi minimum tubuh saat istirahat total</div>
+                        </div>
+                    </div>
+
+                    <div class="energy-stat energy-stat--highlight">
+                        <div class="energy-stat__icon">🔥</div>
+                        <div class="energy-stat__info">
+                            <div class="energy-stat__label">TDEE (Total Daily Energy Expenditure)</div>
+                            <div class="energy-stat__value" id="tdeeValue">0 kkal/hari</div>
+                            <div class="energy-stat__desc">Total kebutuhan energi harian + aktivitas</div>
+                        </div>
+                    </div>
+
+                    <div class="energy-breakdown">
+                        <div class="energy-breakdown__title">📐 Distribusi Makro Ideal:</div>
+                        <div class="energy-breakdown__items">
+                            <div class="energy-breakdown__item">
+                                <span class="energy-breakdown__dot energy-breakdown__dot--protein"></span>
+                                <span>Protein: <strong id="idealProtein">0g</strong> (20%)</span>
+                            </div>
+                            <div class="energy-breakdown__item">
+                                <span class="energy-breakdown__dot energy-breakdown__dot--fat"></span>
+                                <span>Lemak: <strong id="idealFat">0g</strong> (25%)</span>
+                            </div>
+                            <div class="energy-breakdown__item">
+                                <span class="energy-breakdown__dot energy-breakdown__dot--carbs"></span>
+                                <span>Karbo: <strong id="idealCarbs">0g</strong> (50%)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== ROW 3: Food & Nutrition ========== -->
         <div class="grid-row grid-2">
             <!-- Left Column: Food Input & Additives -->
             <div>

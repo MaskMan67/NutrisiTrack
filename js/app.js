@@ -98,6 +98,32 @@ function cacheElements() {
 
     // Toast
     elements.toast = document.getElementById('toast');
+
+    // Statistics Dashboard - Progress bars
+    elements.caloriesProgress = document.getElementById('caloriesProgress');
+    elements.caloriesBar = document.getElementById('caloriesBar');
+    elements.caloriesPercent = document.getElementById('caloriesPercent');
+    elements.proteinProgress = document.getElementById('proteinProgress');
+    elements.proteinBar = document.getElementById('proteinBar');
+    elements.proteinPercent = document.getElementById('proteinPercent');
+    elements.fatProgress = document.getElementById('fatProgress');
+    elements.fatBar = document.getElementById('fatBar');
+    elements.fatPercent = document.getElementById('fatPercent');
+    elements.carbsProgress = document.getElementById('carbsProgress');
+    elements.carbsBar = document.getElementById('carbsBar');
+    elements.carbsPercent = document.getElementById('carbsPercent');
+
+    // Statistics Dashboard - Energy values
+    elements.bmrValueDisplay = document.getElementById('bmrValue');
+    elements.tdeeValue = document.getElementById('tdeeValue');
+    elements.idealProtein = document.getElementById('idealProtein');
+    elements.idealFat = document.getElementById('idealFat');
+    elements.idealCarbs = document.getElementById('idealCarbs');
+
+    // Statistics Dashboard - Remaining display
+    elements.remainingDisplay = document.getElementById('remainingDisplay');
+    elements.remainingCalories = document.getElementById('remainingCalories');
+    elements.remainingProtein = document.getElementById('remainingProtein');
 }
 
 /**
@@ -231,6 +257,87 @@ function updateDailyNeedsDisplay() {
     elements.needProt.textContent = dailyNeeds.protein + 'g';
     elements.needFat.textContent = dailyNeeds.fat + 'g';
     elements.needCarb.textContent = dailyNeeds.carbs + 'g';
+
+    // Update BMR and TDEE display in energy card
+    if (elements.bmrValueDisplay) {
+        elements.bmrValueDisplay.textContent = dailyNeeds.bmr + ' kkal/hari';
+    }
+    if (elements.tdeeValue) {
+        elements.tdeeValue.textContent = dailyNeeds.tdee + ' kkal/hari';
+    }
+    if (elements.idealProtein) {
+        elements.idealProtein.textContent = dailyNeeds.protein + 'g';
+    }
+    if (elements.idealFat) {
+        elements.idealFat.textContent = dailyNeeds.fat + 'g';
+    }
+    if (elements.idealCarbs) {
+        elements.idealCarbs.textContent = dailyNeeds.carbs + 'g';
+    }
+}
+
+/**
+ * Update progress bars and remaining display
+ */
+function updateProgressDisplay() {
+    if (!dailyNeeds) return;
+
+    const totals = calculateFoodTotals(addedFoods);
+
+    // Calculate percentages
+    const caloriesPercent = dailyNeeds.calories > 0 ? (totals.calories / dailyNeeds.calories) * 100 : 0;
+    const proteinPercent = dailyNeeds.protein > 0 ? (totals.protein / dailyNeeds.protein) * 100 : 0;
+    const fatPercent = dailyNeeds.fat > 0 ? (totals.fat / dailyNeeds.fat) * 100 : 0;
+    const carbsPercent = dailyNeeds.carbs > 0 ? (totals.carbs / dailyNeeds.carbs) * 100 : 0;
+
+    // Update progress text
+    if (elements.caloriesProgress) {
+        elements.caloriesProgress.textContent = `${Math.round(totals.calories)} / ${dailyNeeds.calories} kkal`;
+        elements.caloriesBar.style.width = Math.min(caloriesPercent, 100) + '%';
+        elements.caloriesPercent.textContent = Math.round(caloriesPercent) + '%';
+        if (caloriesPercent > 100) elements.caloriesBar.classList.add('overflow');
+        else elements.caloriesBar.classList.remove('overflow');
+    }
+
+    if (elements.proteinProgress) {
+        elements.proteinProgress.textContent = `${totals.protein.toFixed(1)} / ${dailyNeeds.protein}g`;
+        elements.proteinBar.style.width = Math.min(proteinPercent, 100) + '%';
+        elements.proteinPercent.textContent = Math.round(proteinPercent) + '%';
+        if (proteinPercent > 100) elements.proteinBar.classList.add('overflow');
+        else elements.proteinBar.classList.remove('overflow');
+    }
+
+    if (elements.fatProgress) {
+        elements.fatProgress.textContent = `${totals.fat.toFixed(1)} / ${dailyNeeds.fat}g`;
+        elements.fatBar.style.width = Math.min(fatPercent, 100) + '%';
+        elements.fatPercent.textContent = Math.round(fatPercent) + '%';
+        if (fatPercent > 100) elements.fatBar.classList.add('overflow');
+        else elements.fatBar.classList.remove('overflow');
+    }
+
+    if (elements.carbsProgress) {
+        elements.carbsProgress.textContent = `${totals.carbs.toFixed(1)} / ${dailyNeeds.carbs}g`;
+        elements.carbsBar.style.width = Math.min(carbsPercent, 100) + '%';
+        elements.carbsPercent.textContent = Math.round(carbsPercent) + '%';
+        if (carbsPercent > 100) elements.carbsBar.classList.add('overflow');
+        else elements.carbsBar.classList.remove('overflow');
+    }
+
+    // Update remaining display
+    if (elements.remainingCalories) {
+        const remainingCal = Math.max(0, dailyNeeds.calories - Math.round(totals.calories));
+        const remainingProt = Math.max(0, dailyNeeds.protein - totals.protein).toFixed(1);
+
+        if (remainingCal <= 0 && caloriesPercent >= 100) {
+            elements.remainingCalories.textContent = '✓ Tercapai!';
+            elements.remainingProtein.textContent = '';
+            elements.remainingDisplay.classList.add('complete');
+        } else {
+            elements.remainingCalories.textContent = remainingCal + ' kkal';
+            elements.remainingProtein.textContent = remainingProt + 'g protein';
+            elements.remainingDisplay.classList.remove('complete');
+        }
+    }
 }
 
 // ============================================
@@ -418,6 +525,9 @@ function updateNutritionDisplay() {
 
     // Update chart
     updateNutritionChart(totals);
+
+    // Update progress bars and remaining display
+    updateProgressDisplay();
 }
 
 /**
