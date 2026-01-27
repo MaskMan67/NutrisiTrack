@@ -4,11 +4,13 @@
  */
 
 // Import modules
-import { saveProfile, loadProfile, saveFoods, loadFoods, clearAllData, saveTheme, loadTheme } from './storage.js';
+import { saveProfile, loadProfile, saveFoods, loadFoods, clearAllData, saveTheme, loadTheme, getTodayDateString, saveDailyData, loadDailyData, loadWeeklyData } from './storage.js';
 import { calculateDailyNeeds, calculateFoodTotals, getBMIIndicatorPosition, ACTIVITY_LEVELS } from './calculator.js';
 import { foodDatabase, searchFoods, getFoodByName, getAdditiveInfo, getUniqueAdditives } from './foodDatabase.js';
 import { initHydration, addWater, resetWater, getWaterCount, isWaterTargetReached } from './hydration.js';
 import { initStreak, getStreak, getStreakMessage } from './streak.js';
+import { initWeeklyChart, updateWeeklyChart } from './weeklyChart.js';
+import { initRouter, navigateTo, getCurrentPage } from './router.js';
 
 // ============================================
 // State
@@ -17,6 +19,7 @@ let selectedFood = null;
 let addedFoods = [];
 let dailyNeeds = null;
 let nutritionChart = null;
+let currentSelectedDate = getTodayDateString(); // Track which date we're adding food to
 
 // ============================================
 // DOM Elements (cached on init)
@@ -33,9 +36,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Theme
     initTheme();
 
+    // Initialize router
+    initRouter();
+
     // Initialize modules
     initStreak();
     initHydration();
+
+    // Initialize date picker
+    initDatePicker();
 
     // Load saved data
     loadSavedData();
@@ -45,6 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial calculations
     calculateAndDisplay();
+
+    // Initialize weekly chart (after a small delay for Chart.js to load)
+    setTimeout(() => {
+        initWeeklyChart();
+    }, 100);
 
     // Register service worker
     registerServiceWorker();
@@ -168,6 +182,10 @@ function cacheElements() {
     elements.remainingDisplay = document.getElementById('remainingDisplay');
     elements.remainingCalories = document.getElementById('remainingCalories');
     elements.remainingProtein = document.getElementById('remainingProtein');
+
+    // Date picker
+    elements.entryDate = document.getElementById('entryDate');
+    elements.selectedDateDisplay = document.getElementById('selectedDateDisplay');
 }
 
 /**
@@ -184,8 +202,58 @@ function loadSavedData() {
         elements.activity.value = savedProfile.activity || 1.55;
     }
 
-    // Load foods
-    addedFoods = loadFoods();
+    // Load foods for current date
+    loadFoodsForDate(currentSelectedDate);
+}
+
+/**
+ * Load foods for a specific date
+ */
+function loadFoodsForDate(dateStr) {
+    const dayData = loadDailyData(dateStr);
+    addedFoods = dayData.foods || [];
+
+    // Also update legacy storage for backwards compatibility
+    saveFoods(addedFoods);
+
+    renderFoodList();
+    updateNutritionDisplay();
+}
+
+/**
+ * Initialize date picker
+ */
+function initDatePicker() {
+    const today = getTodayDateString();
+    currentSelectedDate = today;
+
+    if (elements.entryDate) {
+        elements.entryDate.value = today;
+        elements.entryDate.max = today; // Can't add food for future dates
+        updateSelectedDateDisplay();
+    }
+}
+
+/**
+ * Update the selected date display text
+ */
+function updateSelectedDateDisplay() {
+    if (!elements.selectedDateDisplay) return;
+
+    const today = getTodayDateString();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    if (currentSelectedDate === today) {
+        elements.selectedDateDisplay.textContent = '📅 Hari Ini';
+    } else if (currentSelectedDate === yesterdayStr) {
+        elements.selectedDateDisplay.textContent = '📅 Kemarin';
+    } else {
+        const date = new Date(currentSelectedDate);
+        const options = { weekday: 'long', day: 'numeric', month: 'short' };
+        elements.selectedDateDisplay.textContent = '📅 ' + date.toLocaleDateString('id-ID', options);
+    }
 }
 
 /**
@@ -195,6 +263,13 @@ function setupEventListeners() {
     // Theme toggle
     if (elements.themeToggle) {
         elements.themeToggle.addEventListener('click', toggleTheme);
+    }
+
+    // Date picker change
+    if (elements.entryDate) {
+        elements.entryDate.addEventListener('change', (e) => {
+            handleDateChange(e.target.value);
+        });
     }
 
     // Profile input changes
@@ -448,14 +523,21 @@ window.addSelectedFood = function () {
         meal
     });
 
-    // Save and reset
+    // Save to date-based storage
+    saveDailyData(currentSelectedDate, addedFoods, getWaterCount());
+
+    // Also update legacy storage for backwards compatibility
     saveFoods(addedFoods);
+
     selectedFood = null;
     elements.foodSearch.value = '';
 
     // Update displays
     renderFoodList();
     updateNutritionDisplay();
+
+    // Update weekly chart
+    updateWeeklyChart();
 
     showToast('Makanan ditambahkan');
 };
@@ -465,9 +547,18 @@ window.addSelectedFood = function () {
  */
 window.removeFood = function (index) {
     addedFoods.splice(index, 1);
+
+    // Save to date-based storage
+    saveDailyData(currentSelectedDate, addedFoods, getWaterCount());
+
+    // Also update legacy storage for backwards compatibility
     saveFoods(addedFoods);
+
     renderFoodList();
     updateNutritionDisplay();
+
+    // Update weekly chart
+    updateWeeklyChart();
 };
 
 /**
@@ -700,6 +791,53 @@ window.handleClearData = function () {
         location.reload();
     }
 };
+
+// ============================================
+// Date Navigation
+// ============================================
+
+/**
+ * Handle date change from picker
+ */
+function handleDateChange(dateStr) {
+    if (!dateStr) return;
+
+    currentSelectedDate = dateStr;
+    if (elements.entryDate) {
+        elements.entryDate.value = dateStr;
+    }
+    updateSelectedDateDisplay();
+    loadFoodsForDate(dateStr);
+    showToast('Data tanggal diubah');
+}
+
+/**
+ * Select today's date (global function for onclick)
+ */
+window.selectToday = function () {
+    const today = getTodayDateString();
+    handleDateChange(today);
+};
+
+/**
+ * Select yesterday's date (global function for onclick)
+ */
+window.selectYesterday = function () {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    handleDateChange(yesterdayStr);
+};
+
+/**
+ * Navigate to page (global function for onclick)
+ */
+window.navigateTo = navigateTo;
+
+/**
+ * Toggle theme (global function for onclick)
+ */
+window.toggleTheme = toggleTheme;
 
 // ============================================
 // Toast Notifications
