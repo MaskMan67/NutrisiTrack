@@ -8,8 +8,36 @@ const STORAGE_KEYS = {
     FOODS: 'nutriscan_foods',
     WATER: 'nutriscan_water',
     STREAK: 'nutriscan_streak',
-    LAST_VISIT: 'nutriscan_last_visit'
+    LAST_VISIT: 'nutriscan_last_visit',
+    THEME: 'nutriscan_theme'
 };
+
+/**
+ * Save theme preference to LocalStorage
+ * @param {string} theme - 'light' or 'dark'
+ */
+export function saveTheme(theme) {
+    try {
+        localStorage.setItem(STORAGE_KEYS.THEME, theme);
+        return true;
+    } catch (e) {
+        console.error('Error saving theme:', e);
+        return false;
+    }
+}
+
+/**
+ * Load theme preference from LocalStorage
+ * @returns {string|null} 'light', 'dark', or null
+ */
+export function loadTheme() {
+    try {
+        return localStorage.getItem(STORAGE_KEYS.THEME);
+    } catch (e) {
+        console.error('Error loading theme:', e);
+        return null;
+    }
+}
 
 /**
  * Save user profile to LocalStorage
@@ -150,5 +178,7 @@ export default {
     loadWater,
     saveStreak,
     loadStreak,
+    saveTheme,
+    loadTheme,
     clearAllData
 };

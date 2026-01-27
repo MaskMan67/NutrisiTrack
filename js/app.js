@@ -4,7 +4,7 @@
  */
 
 // Import modules
-import { saveProfile, loadProfile, saveFoods, loadFoods, clearAllData } from './storage.js';
+import { saveProfile, loadProfile, saveFoods, loadFoods, clearAllData, saveTheme, loadTheme } from './storage.js';
 import { calculateDailyNeeds, calculateFoodTotals, getBMIIndicatorPosition, ACTIVITY_LEVELS } from './calculator.js';
 import { foodDatabase, searchFoods, getFoodByName, getAdditiveInfo, getUniqueAdditives } from './foodDatabase.js';
 import { initHydration, addWater, resetWater, getWaterCount, isWaterTargetReached } from './hydration.js';
@@ -30,6 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Cache DOM elements
     cacheElements();
 
+    // Initialize Theme
+    initTheme();
+
     // Initialize modules
     initStreak();
     initHydration();
@@ -50,6 +53,44 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
+ * Initialize Theme (Light/Dark)
+ */
+function initTheme() {
+    const savedTheme = loadTheme();
+
+    // Check system preference if no saved theme
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = savedTheme || (systemDark ? 'dark' : 'light'); // Default to light/cheerful if no preference
+
+    // Apply theme
+    applyTheme(theme);
+}
+
+/**
+ * Apply theme to document
+ */
+function applyTheme(theme) {
+    if (theme === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+        if (elements.themeToggle) elements.themeToggle.textContent = '🌙';
+    } else {
+        document.body.removeAttribute('data-theme');
+        if (elements.themeToggle) elements.themeToggle.textContent = '☀️';
+    }
+}
+
+/**
+ * Toggle Theme
+ */
+window.toggleTheme = function () {
+    const currentTheme = document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+    applyTheme(newTheme);
+    saveTheme(newTheme);
+};
+
+/**
  * Cache frequently accessed DOM elements
  */
 function cacheElements() {
@@ -59,6 +100,9 @@ function cacheElements() {
     elements.height = document.getElementById('height');
     elements.gender = document.getElementById('gender');
     elements.activity = document.getElementById('activity');
+
+    // Theme Toggle
+    elements.themeToggle = document.getElementById('themeToggle');
 
     // BMI display
     elements.bmiValue = document.getElementById('bmiValue');
@@ -148,6 +192,11 @@ function loadSavedData() {
  * Setup all event listeners
  */
 function setupEventListeners() {
+    // Theme toggle
+    if (elements.themeToggle) {
+        elements.themeToggle.addEventListener('click', toggleTheme);
+    }
+
     // Profile input changes
     ['age', 'weight', 'height', 'gender', 'activity'].forEach(id => {
         elements[id].addEventListener('change', () => {

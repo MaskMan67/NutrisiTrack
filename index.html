@@ -38,6 +38,7 @@
     <div class="app-container">
         <!-- ========== HEADER ========== -->
         <header class="app-header">
+            <button class="theme-toggle" id="themeToggle" title="Ganti Tema">☀️</button>
             <h1 class="app-header__logo">🔬 NutriScan</h1>
             <p class="app-header__tagline">Kalkulator Gizi & Zat Aditif Berbasis Sains</p>
             <div class="streak-badge" id="streakDisplay">
@@ -154,51 +155,51 @@
                     <div class="progress-stat">
                         <div class="progress-stat__header">
                             <span class="progress-stat__label">🔥 Kalori</span>
+                            <span class="progress-stat__percent" id="caloriesPercent">0%</span>
                             <span class="progress-stat__values" id="caloriesProgress">0 / 0 kkal</span>
                         </div>
                         <div class="progress-bar-track">
                             <div class="progress-bar-fill progress-bar-fill--calories" id="caloriesBar"
                                 style="width: 0%"></div>
                         </div>
-                        <span class="progress-stat__percent" id="caloriesPercent">0%</span>
                     </div>
 
                     <!-- Protein Progress -->
                     <div class="progress-stat">
                         <div class="progress-stat__header">
                             <span class="progress-stat__label">🥩 Protein</span>
+                            <span class="progress-stat__percent" id="proteinPercent">0%</span>
                             <span class="progress-stat__values" id="proteinProgress">0 / 0g</span>
                         </div>
                         <div class="progress-bar-track">
                             <div class="progress-bar-fill progress-bar-fill--protein" id="proteinBar" style="width: 0%">
                             </div>
                         </div>
-                        <span class="progress-stat__percent" id="proteinPercent">0%</span>
                     </div>
 
                     <!-- Fat Progress -->
                     <div class="progress-stat">
                         <div class="progress-stat__header">
                             <span class="progress-stat__label">🧈 Lemak</span>
+                            <span class="progress-stat__percent" id="fatPercent">0%</span>
                             <span class="progress-stat__values" id="fatProgress">0 / 0g</span>
                         </div>
                         <div class="progress-bar-track">
                             <div class="progress-bar-fill progress-bar-fill--fat" id="fatBar" style="width: 0%"></div>
                         </div>
-                        <span class="progress-stat__percent" id="fatPercent">0%</span>
                     </div>
 
                     <!-- Carbs Progress -->
                     <div class="progress-stat">
                         <div class="progress-stat__header">
                             <span class="progress-stat__label">🍚 Karbohidrat</span>
+                            <span class="progress-stat__percent" id="carbsPercent">0%</span>
                             <span class="progress-stat__values" id="carbsProgress">0 / 0g</span>
                         </div>
                         <div class="progress-bar-track">
                             <div class="progress-bar-fill progress-bar-fill--carbs" id="carbsBar" style="width: 0%">
                             </div>
                         </div>
-                        <span class="progress-stat__percent" id="carbsPercent">0%</span>
                     </div>
                 </div>
 
