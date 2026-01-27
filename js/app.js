@@ -10,6 +10,7 @@ import { foodDatabase, searchFoods, getFoodByName, getAdditiveInfo, getUniqueAdd
 import { initHydration, addWater, resetWater, getWaterCount, isWaterTargetReached } from './hydration.js';
 import { initStreak, getStreak, getStreakMessage } from './streak.js';
 import { initWeeklyChart, updateWeeklyChart } from './weeklyChart.js';
+import { initRouter, navigateTo, getCurrentPage } from './router.js';
 
 // ============================================
 // State
@@ -34,6 +35,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize Theme
     initTheme();
+
+    // Initialize router
+    initRouter();
 
     // Initialize modules
     initStreak();
@@ -824,6 +828,16 @@ window.selectYesterday = function () {
     const yesterdayStr = yesterday.toISOString().split('T')[0];
     handleDateChange(yesterdayStr);
 };
+
+/**
+ * Navigate to page (global function for onclick)
+ */
+window.navigateTo = navigateTo;
+
+/**
+ * Toggle theme (global function for onclick)
+ */
+window.toggleTheme = toggleTheme;
 
 // ============================================
 // Toast Notifications

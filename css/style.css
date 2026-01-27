@@ -1810,3 +1810,227 @@ body::before {
         padding: var(--space-sm);
     }
 }
+
+/* ============================================
+   Multi-Page Navigation System
+   ============================================ */
+
+/* Compact Header */
+.app-header--compact {
+    padding: var(--space-md) var(--space-lg);
+    text-align: left;
+}
+
+.app-header--compact .app-header__content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.app-header--compact .app-header__logo {
+    font-size: 1.3rem;
+    margin-bottom: 0;
+}
+
+.app-header--compact .streak-badge {
+    margin-top: 0;
+    font-size: 0.85rem;
+    padding: var(--space-xs) var(--space-sm);
+}
+
+.app-header--compact .streak-badge__count {
+    font-size: 0.85rem;
+}
+
+/* Page Container */
+.page-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 80px;
+    /* Space for tab bar */
+}
+
+/* Individual Pages */
+.page {
+    display: none;
+    animation: pageSlideIn 0.3s ease-out;
+}
+
+.page--active {
+    display: block;
+}
+
+.page__content {
+    padding: var(--space-md);
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+@keyframes pageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Bottom Tab Bar */
+.tab-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 70px;
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border-light);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 1000;
+}
+
+.tab-bar__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex: 1;
+    height: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.tab-bar__icon {
+    font-size: 1.5rem;
+    transition: var(--transition-fast);
+}
+
+.tab-bar__label {
+    font-size: 0.7rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.tab-bar__item:hover {
+    color: var(--text-secondary);
+}
+
+.tab-bar__item--active {
+    color: var(--primary);
+}
+
+.tab-bar__item--active .tab-bar__icon {
+    transform: scale(1.15);
+}
+
+.tab-bar__item--active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 0 0 4px 4px;
+}
+
+/* App Container for multi-page */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+/* FAB Button */
+.btn--fab {
+    position: sticky;
+    bottom: var(--space-md);
+    margin-top: var(--space-md);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Theme Options in Profile */
+.theme-options {
+    padding: var(--space-sm) 0;
+}
+
+/* App Info section */
+.app-info {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.app-info p {
+    margin-bottom: var(--space-sm);
+}
+
+/* Daily Targets - standalone card style */
+.daily-targets {
+    padding: 0;
+}
+
+.daily-targets__title {
+    display: none;
+}
+
+/* Responsive adjustments for multi-page */
+@media (max-width: 480px) {
+    .page__content {
+        padding: var(--space-sm);
+        gap: var(--space-sm);
+    }
+
+    .tab-bar__label {
+        font-size: 0.65rem;
+    }
+
+    .tab-bar__icon {
+        font-size: 1.3rem;
+    }
+
+    .app-header--compact {
+        padding: var(--space-sm) var(--space-md);
+    }
+
+    .app-header--compact .app-header__logo {
+        font-size: 1.1rem;
+    }
+}
+
+/* iPad / Tablet adjustments */
+@media (min-width: 768px) {
+    .tab-bar {
+        max-width: 500px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 20px 20px 0 0;
+    }
+
+    .page__content {
+        padding: var(--space-lg);
+    }
+}
