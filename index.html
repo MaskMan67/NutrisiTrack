@@ -260,6 +260,31 @@
             </div>
         </div>
 
+        <!-- ========== ROW 2.5: Weekly Statistics ========== -->
+        <div class="grid-row grid-1">
+            <div class="card weekly-chart-card">
+                <div class="card__header">
+                    <span class="card__icon">📈</span>
+                    <h2 class="card__title">Statistik Mingguan</h2>
+                </div>
+                <div class="chart-container weekly-chart">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+                <div class="weekly-stats-summary">
+                    <div class="weekly-stat">
+                        <span class="weekly-stat__icon">🔥</span>
+                        <span class="weekly-stat__label">Rata-rata Kalori</span>
+                        <span class="weekly-stat__value" id="avgCalories">0 kkal</span>
+                    </div>
+                    <div class="weekly-stat">
+                        <span class="weekly-stat__icon">📆</span>
+                        <span class="weekly-stat__label">Total Hari Aktif</span>
+                        <span class="weekly-stat__value" id="activeDays">0 hari</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ========== ROW 3: Food & Nutrition ========== -->
         <div class="grid-row grid-2">
             <!-- Left Column: Food Input & Additives -->
@@ -269,6 +294,19 @@
                     <div class="card__header">
                         <span class="card__icon">🍽️</span>
                         <h2 class="card__title">Tambah Makanan</h2>
+                    </div>
+
+                    <!-- Date Picker -->
+                    <div class="form-group date-picker-group">
+                        <label class="form-label">📅 Tanggal</label>
+                        <div class="date-picker-row">
+                            <input type="date" id="entryDate" class="form-input date-input">
+                            <div class="date-quick-nav">
+                                <button class="btn btn--sm btn--outline" onclick="selectToday()">Hari Ini</button>
+                                <button class="btn btn--sm btn--outline" onclick="selectYesterday()">Kemarin</button>
+                            </div>
+                        </div>
+                        <div class="selected-date-display" id="selectedDateDisplay">Hari Ini</div>
                     </div>
 
                     <div class="form-group food-search">
