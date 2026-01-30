@@ -2,7 +2,25 @@
  * NutriScan - Food Database Module
  * Indonesian foods with nutritional data (per 100g)
  * Data sources: Kemenkes RI, TKPI (Tabel Komposisi Pangan Indonesia)
+ * Last updated: January 2026
  */
+
+/**
+ * Food Categories
+ */
+export const FOOD_CATEGORIES = [
+    { id: 'all', name: 'Semua', icon: '🍽️' },
+    { id: 'pokok', name: 'Makanan Pokok', icon: '🍚' },
+    { id: 'hewani', name: 'Lauk Hewani', icon: '🍗' },
+    { id: 'nabati', name: 'Lauk Nabati', icon: '🥜' },
+    { id: 'sayuran', name: 'Sayuran', icon: '🥬' },
+    { id: 'buah', name: 'Buah-buahan', icon: '🍎' },
+    { id: 'masakan', name: 'Masakan Indonesia', icon: '🍛' },
+    { id: 'snack', name: 'Jajanan & Snack', icon: '🍿' },
+    { id: 'minuman', name: 'Minuman & Dairy', icon: '🥛' },
+    { id: 'bumbu', name: 'Bumbu & Saus', icon: '🫙' },
+    { id: 'fastfood', name: 'Fast Food', icon: '🍔' }
+];
 
 /**
  * Indonesian Food Database
@@ -13,107 +31,108 @@
  * - fat: Fat (g) per 100g
  * - carb: Carbohydrates (g) per 100g
  * - per: Base weight (always 100g)
+ * - category: Food category ID
  * - additives: Array of E-number additives
  */
 export const foodDatabase = [
     // ========== MAKANAN POKOK ==========
-    { name: "Nasi Putih", cal: 130, prot: 2.7, fat: 0.3, carb: 28, per: 100, additives: [] },
-    { name: "Nasi Merah", cal: 110, prot: 2.5, fat: 0.8, carb: 23, per: 100, additives: [] },
-    { name: "Mie Instan", cal: 436, prot: 9, fat: 17, carb: 63, per: 100, additives: ["E621", "E627", "E631", "E150c", "E501"] },
-    { name: "Roti Tawar", cal: 265, prot: 9, fat: 3, carb: 49, per: 100, additives: ["E282", "E471"] },
-    { name: "Kentang Rebus", cal: 87, prot: 1.9, fat: 0.1, carb: 20, per: 100, additives: [] },
-    { name: "Singkong Rebus", cal: 154, prot: 1.4, fat: 0.3, carb: 36, per: 100, additives: [] },
+    { name: "Nasi Putih", cal: 130, prot: 2.7, fat: 0.3, carb: 28, per: 100, category: 'pokok', additives: [] },
+    { name: "Nasi Merah", cal: 110, prot: 2.5, fat: 0.8, carb: 23, per: 100, category: 'pokok', additives: [] },
+    { name: "Mie Instan", cal: 436, prot: 9, fat: 17, carb: 63, per: 100, category: 'pokok', additives: ["E621", "E627", "E631", "E150c", "E501"] },
+    { name: "Roti Tawar", cal: 265, prot: 9, fat: 3, carb: 49, per: 100, category: 'pokok', additives: ["E282", "E471"] },
+    { name: "Kentang Rebus", cal: 87, prot: 1.9, fat: 0.1, carb: 20, per: 100, category: 'pokok', additives: [] },
+    { name: "Singkong Rebus", cal: 154, prot: 1.4, fat: 0.3, carb: 36, per: 100, category: 'pokok', additives: [] },
 
     // ========== LAUK HEWANI ==========
-    { name: "Ayam Goreng", cal: 246, prot: 27, fat: 14, carb: 0, per: 100, additives: [] },
-    { name: "Ayam Bakar", cal: 190, prot: 28, fat: 8, carb: 0, per: 100, additives: [] },
-    { name: "Telur Rebus", cal: 155, prot: 13, fat: 11, carb: 1.1, per: 100, additives: [] },
-    { name: "Telur Dadar", cal: 196, prot: 14, fat: 15, carb: 1, per: 100, additives: [] },
-    { name: "Ikan Goreng", cal: 199, prot: 22, fat: 11, carb: 2, per: 100, additives: [] },
-    { name: "Ikan Bakar", cal: 166, prot: 25, fat: 7, carb: 0, per: 100, additives: [] },
-    { name: "Udang Goreng", cal: 242, prot: 21, fat: 16, carb: 3, per: 100, additives: [] },
-    { name: "Daging Sapi Rendang", cal: 193, prot: 22, fat: 10, carb: 4, per: 100, additives: [] },
-    { name: "Bakso Sapi", cal: 202, prot: 10, fat: 12, carb: 8, per: 100, additives: ["E621", "E451"] },
-    { name: "Sosis Sapi", cal: 228, prot: 12, fat: 18, carb: 4, per: 100, additives: ["E250", "E316", "E621", "E451"] },
-    { name: "Nugget Ayam", cal: 245, prot: 13, fat: 15, carb: 15, per: 100, additives: ["E450", "E452", "E621", "E412"] },
-    { name: "Kornet Sapi", cal: 220, prot: 14, fat: 18, carb: 2, per: 100, additives: ["E250", "E316"] },
+    { name: "Ayam Goreng", cal: 246, prot: 27, fat: 14, carb: 0, per: 100, category: 'hewani', additives: [] },
+    { name: "Ayam Bakar", cal: 190, prot: 28, fat: 8, carb: 0, per: 100, category: 'hewani', additives: [] },
+    { name: "Telur Rebus", cal: 155, prot: 13, fat: 11, carb: 1.1, per: 100, category: 'hewani', additives: [] },
+    { name: "Telur Dadar", cal: 196, prot: 14, fat: 15, carb: 1, per: 100, category: 'hewani', additives: [] },
+    { name: "Ikan Goreng", cal: 199, prot: 22, fat: 11, carb: 2, per: 100, category: 'hewani', additives: [] },
+    { name: "Ikan Bakar", cal: 166, prot: 25, fat: 7, carb: 0, per: 100, category: 'hewani', additives: [] },
+    { name: "Udang Goreng", cal: 242, prot: 21, fat: 16, carb: 3, per: 100, category: 'hewani', additives: [] },
+    { name: "Daging Sapi Rendang", cal: 193, prot: 22, fat: 10, carb: 4, per: 100, category: 'hewani', additives: [] },
+    { name: "Bakso Sapi", cal: 202, prot: 10, fat: 12, carb: 8, per: 100, category: 'hewani', additives: ["E621", "E451"] },
+    { name: "Sosis Sapi", cal: 228, prot: 12, fat: 18, carb: 4, per: 100, category: 'hewani', additives: ["E250", "E316", "E621", "E451"] },
+    { name: "Nugget Ayam", cal: 245, prot: 13, fat: 15, carb: 15, per: 100, category: 'hewani', additives: ["E450", "E452", "E621", "E412"] },
+    { name: "Kornet Sapi", cal: 220, prot: 14, fat: 18, carb: 2, per: 100, category: 'hewani', additives: ["E250", "E316"] },
 
     // ========== LAUK NABATI ==========
-    { name: "Tempe Goreng", cal: 192, prot: 19, fat: 10, carb: 7.8, per: 100, additives: [] },
-    { name: "Tahu Goreng", cal: 271, prot: 17, fat: 20, carb: 6, per: 100, additives: [] },
-    { name: "Tempe Bacem", cal: 158, prot: 16, fat: 8, carb: 8, per: 100, additives: [] },
-    { name: "Tahu Bacem", cal: 165, prot: 12, fat: 10, carb: 8, per: 100, additives: [] },
-    { name: "Oncom Goreng", cal: 180, prot: 13, fat: 11, carb: 8, per: 100, additives: [] },
+    { name: "Tempe Goreng", cal: 192, prot: 19, fat: 10, carb: 7.8, per: 100, category: 'nabati', additives: [] },
+    { name: "Tahu Goreng", cal: 271, prot: 17, fat: 20, carb: 6, per: 100, category: 'nabati', additives: [] },
+    { name: "Tempe Bacem", cal: 158, prot: 16, fat: 8, carb: 8, per: 100, category: 'nabati', additives: [] },
+    { name: "Tahu Bacem", cal: 165, prot: 12, fat: 10, carb: 8, per: 100, category: 'nabati', additives: [] },
+    { name: "Oncom Goreng", cal: 180, prot: 13, fat: 11, carb: 8, per: 100, category: 'nabati', additives: [] },
 
     // ========== SAYURAN ==========
-    { name: "Sayur Bayam", cal: 23, prot: 2.9, fat: 0.4, carb: 3.6, per: 100, additives: [] },
-    { name: "Kangkung", cal: 19, prot: 2.6, fat: 0.2, carb: 3.1, per: 100, additives: [] },
-    { name: "Wortel", cal: 41, prot: 0.9, fat: 0.2, carb: 10, per: 100, additives: [] },
-    { name: "Brokoli", cal: 34, prot: 2.8, fat: 0.4, carb: 7, per: 100, additives: [] },
-    { name: "Sayur Sop", cal: 45, prot: 2, fat: 1.5, carb: 6, per: 100, additives: [] },
-    { name: "Capcay", cal: 55, prot: 3, fat: 2, carb: 7, per: 100, additives: [] },
-    { name: "Tumis Kacang Panjang", cal: 67, prot: 3, fat: 3, carb: 8, per: 100, additives: [] },
+    { name: "Sayur Bayam", cal: 23, prot: 2.9, fat: 0.4, carb: 3.6, per: 100, category: 'sayuran', additives: [] },
+    { name: "Kangkung", cal: 19, prot: 2.6, fat: 0.2, carb: 3.1, per: 100, category: 'sayuran', additives: [] },
+    { name: "Wortel", cal: 41, prot: 0.9, fat: 0.2, carb: 10, per: 100, category: 'sayuran', additives: [] },
+    { name: "Brokoli", cal: 34, prot: 2.8, fat: 0.4, carb: 7, per: 100, category: 'sayuran', additives: [] },
+    { name: "Sayur Sop", cal: 45, prot: 2, fat: 1.5, carb: 6, per: 100, category: 'sayuran', additives: [] },
+    { name: "Capcay", cal: 55, prot: 3, fat: 2, carb: 7, per: 100, category: 'sayuran', additives: [] },
+    { name: "Tumis Kacang Panjang", cal: 67, prot: 3, fat: 3, carb: 8, per: 100, category: 'sayuran', additives: [] },
 
     // ========== BUAH-BUAHAN ==========
-    { name: "Pisang", cal: 89, prot: 1.1, fat: 0.3, carb: 23, per: 100, additives: [] },
-    { name: "Apel", cal: 52, prot: 0.3, fat: 0.2, carb: 14, per: 100, additives: [] },
-    { name: "Jeruk", cal: 47, prot: 0.9, fat: 0.1, carb: 12, per: 100, additives: [] },
-    { name: "Mangga", cal: 60, prot: 0.8, fat: 0.4, carb: 15, per: 100, additives: [] },
-    { name: "Pepaya", cal: 43, prot: 0.5, fat: 0.3, carb: 11, per: 100, additives: [] },
-    { name: "Semangka", cal: 30, prot: 0.6, fat: 0.2, carb: 8, per: 100, additives: [] },
-    { name: "Alpukat", cal: 160, prot: 2, fat: 15, carb: 9, per: 100, additives: [] },
-    { name: "Anggur", cal: 69, prot: 0.7, fat: 0.2, carb: 18, per: 100, additives: [] },
-    { name: "Salak", cal: 82, prot: 0.4, fat: 0, carb: 22, per: 100, additives: [] },
-    { name: "Durian", cal: 147, prot: 1.5, fat: 5, carb: 27, per: 100, additives: [] },
+    { name: "Pisang", cal: 89, prot: 1.1, fat: 0.3, carb: 23, per: 100, category: 'buah', additives: [] },
+    { name: "Apel", cal: 52, prot: 0.3, fat: 0.2, carb: 14, per: 100, category: 'buah', additives: [] },
+    { name: "Jeruk", cal: 47, prot: 0.9, fat: 0.1, carb: 12, per: 100, category: 'buah', additives: [] },
+    { name: "Mangga", cal: 60, prot: 0.8, fat: 0.4, carb: 15, per: 100, category: 'buah', additives: [] },
+    { name: "Pepaya", cal: 43, prot: 0.5, fat: 0.3, carb: 11, per: 100, category: 'buah', additives: [] },
+    { name: "Semangka", cal: 30, prot: 0.6, fat: 0.2, carb: 8, per: 100, category: 'buah', additives: [] },
+    { name: "Alpukat", cal: 160, prot: 2, fat: 15, carb: 9, per: 100, category: 'buah', additives: [] },
+    { name: "Anggur", cal: 69, prot: 0.7, fat: 0.2, carb: 18, per: 100, category: 'buah', additives: [] },
+    { name: "Salak", cal: 82, prot: 0.4, fat: 0, carb: 22, per: 100, category: 'buah', additives: [] },
+    { name: "Durian", cal: 147, prot: 1.5, fat: 5, carb: 27, per: 100, category: 'buah', additives: [] },
 
     // ========== MASAKAN INDONESIA ==========
-    { name: "Nasi Goreng", cal: 163, prot: 6, fat: 6, carb: 22, per: 100, additives: ["E621", "E150c"] },
-    { name: "Nasi Uduk", cal: 175, prot: 4, fat: 6, carb: 27, per: 100, additives: [] },
-    { name: "Nasi Kuning", cal: 180, prot: 4, fat: 5, carb: 30, per: 100, additives: ["E100"] },
-    { name: "Sate Ayam (5 tusuk)", cal: 170, prot: 15, fat: 10, carb: 5, per: 100, additives: ["E621", "E150c"] },
-    { name: "Gado-Gado", cal: 150, prot: 8, fat: 9, carb: 12, per: 100, additives: [] },
-    { name: "Soto Ayam", cal: 75, prot: 6, fat: 4, carb: 4, per: 100, additives: [] },
-    { name: "Rawon", cal: 85, prot: 8, fat: 5, carb: 2, per: 100, additives: [] },
-    { name: "Gudeg", cal: 180, prot: 4, fat: 8, carb: 25, per: 100, additives: [] },
-    { name: "Pecel Lele", cal: 195, prot: 18, fat: 12, carb: 3, per: 100, additives: [] },
-    { name: "Mie Goreng", cal: 350, prot: 8, fat: 14, carb: 48, per: 100, additives: ["E621", "E627", "E150c"] },
-    { name: "Mie Ayam", cal: 280, prot: 12, fat: 10, carb: 35, per: 100, additives: ["E621"] },
-    { name: "Bakmi Goreng", cal: 320, prot: 10, fat: 12, carb: 42, per: 100, additives: ["E621"] },
+    { name: "Nasi Goreng", cal: 163, prot: 6, fat: 6, carb: 22, per: 100, category: 'masakan', additives: ["E621", "E150c"] },
+    { name: "Nasi Uduk", cal: 175, prot: 4, fat: 6, carb: 27, per: 100, category: 'masakan', additives: [] },
+    { name: "Nasi Kuning", cal: 180, prot: 4, fat: 5, carb: 30, per: 100, category: 'masakan', additives: ["E100"] },
+    { name: "Sate Ayam (5 tusuk)", cal: 170, prot: 15, fat: 10, carb: 5, per: 100, category: 'masakan', additives: ["E621", "E150c"] },
+    { name: "Gado-Gado", cal: 150, prot: 8, fat: 9, carb: 12, per: 100, category: 'masakan', additives: [] },
+    { name: "Soto Ayam", cal: 75, prot: 6, fat: 4, carb: 4, per: 100, category: 'masakan', additives: [] },
+    { name: "Rawon", cal: 85, prot: 8, fat: 5, carb: 2, per: 100, category: 'masakan', additives: [] },
+    { name: "Gudeg", cal: 180, prot: 4, fat: 8, carb: 25, per: 100, category: 'masakan', additives: [] },
+    { name: "Pecel Lele", cal: 195, prot: 18, fat: 12, carb: 3, per: 100, category: 'masakan', additives: [] },
+    { name: "Mie Goreng", cal: 350, prot: 8, fat: 14, carb: 48, per: 100, category: 'masakan', additives: ["E621", "E627", "E150c"] },
+    { name: "Mie Ayam", cal: 280, prot: 12, fat: 10, carb: 35, per: 100, category: 'masakan', additives: ["E621"] },
+    { name: "Bakmi Goreng", cal: 320, prot: 10, fat: 12, carb: 42, per: 100, category: 'masakan', additives: ["E621"] },
 
     // ========== JAJANAN & SNACK ==========
-    { name: "Cilok (5 butir)", cal: 180, prot: 2, fat: 4, carb: 35, per: 100, additives: ["E621"] },
-    { name: "Seblak", cal: 260, prot: 8, fat: 12, carb: 30, per: 100, additives: ["E621", "E124"] },
-    { name: "Batagor (5 pcs)", cal: 220, prot: 10, fat: 12, carb: 18, per: 100, additives: ["E621"] },
-    { name: "Risoles (2 pcs)", cal: 285, prot: 7, fat: 15, carb: 30, per: 100, additives: [] },
-    { name: "Pastel (2 pcs)", cal: 265, prot: 6, fat: 14, carb: 28, per: 100, additives: [] },
-    { name: "Donat", cal: 452, prot: 4, fat: 25, carb: 51, per: 100, additives: ["E102", "E471", "E202"] },
-    { name: "Martabak Manis (1 potong)", cal: 270, prot: 4, fat: 12, carb: 38, per: 100, additives: ["E500", "E503", "E102"] },
-    { name: "Pempek Lenjer", cal: 150, prot: 7, fat: 4, carb: 22, per: 100, additives: ["E621"] },
-    { name: "Keripik Kentang", cal: 536, prot: 7, fat: 35, carb: 53, per: 100, additives: ["E621", "E627", "E631"] },
-    { name: "Keripik Singkong", cal: 160, prot: 1, fat: 10, carb: 20, per: 100, additives: ["E621", "E319"] },
-    { name: "Biskuit Coklat", cal: 502, prot: 6, fat: 22, carb: 68, per: 100, additives: ["E322", "E503", "E500"] },
-    { name: "Permen Karet", cal: 360, prot: 0, fat: 0, carb: 90, per: 100, additives: ["E133", "E102", "E129", "E422"] },
+    { name: "Cilok (5 butir)", cal: 180, prot: 2, fat: 4, carb: 35, per: 100, category: 'snack', additives: ["E621"] },
+    { name: "Seblak", cal: 260, prot: 8, fat: 12, carb: 30, per: 100, category: 'snack', additives: ["E621", "E124"] },
+    { name: "Batagor (5 pcs)", cal: 220, prot: 10, fat: 12, carb: 18, per: 100, category: 'snack', additives: ["E621"] },
+    { name: "Risoles (2 pcs)", cal: 285, prot: 7, fat: 15, carb: 30, per: 100, category: 'snack', additives: [] },
+    { name: "Pastel (2 pcs)", cal: 265, prot: 6, fat: 14, carb: 28, per: 100, category: 'snack', additives: [] },
+    { name: "Donat", cal: 452, prot: 4, fat: 25, carb: 51, per: 100, category: 'snack', additives: ["E102", "E471", "E202"] },
+    { name: "Martabak Manis (1 potong)", cal: 270, prot: 4, fat: 12, carb: 38, per: 100, category: 'snack', additives: ["E500", "E503", "E102"] },
+    { name: "Pempek Lenjer", cal: 150, prot: 7, fat: 4, carb: 22, per: 100, category: 'snack', additives: ["E621"] },
+    { name: "Keripik Kentang", cal: 536, prot: 7, fat: 35, carb: 53, per: 100, category: 'snack', additives: ["E621", "E627", "E631"] },
+    { name: "Keripik Singkong", cal: 160, prot: 1, fat: 10, carb: 20, per: 100, category: 'snack', additives: ["E621", "E319"] },
+    { name: "Biskuit Coklat", cal: 502, prot: 6, fat: 22, carb: 68, per: 100, category: 'snack', additives: ["E322", "E503", "E500"] },
+    { name: "Permen Karet", cal: 360, prot: 0, fat: 0, carb: 90, per: 100, category: 'snack', additives: ["E133", "E102", "E129", "E422"] },
 
     // ========== MINUMAN & DAIRY ==========
-    { name: "Susu UHT Coklat", cal: 80, prot: 3, fat: 2, carb: 12, per: 100, additives: ["E407", "E471"] },
-    { name: "Susu Full Cream", cal: 61, prot: 3.2, fat: 3.3, carb: 4.8, per: 100, additives: [] },
-    { name: "Yoghurt Buah", cal: 95, prot: 5, fat: 2, carb: 15, per: 100, additives: ["E124", "E440"] },
-    { name: "Es Krim", cal: 207, prot: 3.5, fat: 11, carb: 24, per: 100, additives: ["E410", "E412", "E407"] },
-    { name: "Minuman Soda", cal: 41, prot: 0, fat: 0, carb: 10, per: 100, additives: ["E150d", "E331", "E338", "E211"] },
-    { name: "Jus Jeruk", cal: 45, prot: 0.7, fat: 0.2, carb: 10, per: 100, additives: [] },
-    { name: "Teh Manis", cal: 40, prot: 0, fat: 0, carb: 10, per: 100, additives: [] },
-    { name: "Kopi Susu", cal: 65, prot: 2, fat: 2, carb: 10, per: 100, additives: [] },
+    { name: "Susu UHT Coklat", cal: 80, prot: 3, fat: 2, carb: 12, per: 100, category: 'minuman', additives: ["E407", "E471"] },
+    { name: "Susu Full Cream", cal: 61, prot: 3.2, fat: 3.3, carb: 4.8, per: 100, category: 'minuman', additives: [] },
+    { name: "Yoghurt Buah", cal: 95, prot: 5, fat: 2, carb: 15, per: 100, category: 'minuman', additives: ["E124", "E440"] },
+    { name: "Es Krim", cal: 207, prot: 3.5, fat: 11, carb: 24, per: 100, category: 'minuman', additives: ["E410", "E412", "E407"] },
+    { name: "Minuman Soda", cal: 41, prot: 0, fat: 0, carb: 10, per: 100, category: 'minuman', additives: ["E150d", "E331", "E338", "E211"] },
+    { name: "Jus Jeruk", cal: 45, prot: 0.7, fat: 0.2, carb: 10, per: 100, category: 'minuman', additives: [] },
+    { name: "Teh Manis", cal: 40, prot: 0, fat: 0, carb: 10, per: 100, category: 'minuman', additives: [] },
+    { name: "Kopi Susu", cal: 65, prot: 2, fat: 2, carb: 10, per: 100, category: 'minuman', additives: [] },
 
     // ========== BUMBU & SAUS ==========
-    { name: "Saus Sambal", cal: 93, prot: 2, fat: 0.4, carb: 20, per: 100, additives: ["E211", "E202", "E110", "E124"] },
-    { name: "Kecap Manis", cal: 290, prot: 6, fat: 0.1, carb: 67, per: 100, additives: ["E150c", "E621"] },
-    { name: "Mayonaise", cal: 680, prot: 1, fat: 75, carb: 1, per: 100, additives: ["E202", "E385"] },
+    { name: "Saus Sambal", cal: 93, prot: 2, fat: 0.4, carb: 20, per: 100, category: 'bumbu', additives: ["E211", "E202", "E110", "E124"] },
+    { name: "Kecap Manis", cal: 290, prot: 6, fat: 0.1, carb: 67, per: 100, category: 'bumbu', additives: ["E150c", "E621"] },
+    { name: "Mayonaise", cal: 680, prot: 1, fat: 75, carb: 1, per: 100, category: 'bumbu', additives: ["E202", "E385"] },
 
     // ========== FAST FOOD ==========
-    { name: "Pizza (1 slice)", cal: 266, prot: 11, fat: 10, carb: 33, per: 100, additives: ["E450", "E282", "E322"] },
-    { name: "Burger Daging", cal: 295, prot: 17, fat: 14, carb: 24, per: 100, additives: ["E621", "E451", "E282"] },
-    { name: "French Fries", cal: 312, prot: 3.4, fat: 15, carb: 41, per: 100, additives: ["E330"] },
-    { name: "Ayam Crispy", cal: 260, prot: 18, fat: 16, carb: 12, per: 100, additives: ["E621", "E471"] }
+    { name: "Pizza (1 slice)", cal: 266, prot: 11, fat: 10, carb: 33, per: 100, category: 'fastfood', additives: ["E450", "E282", "E322"] },
+    { name: "Burger Daging", cal: 295, prot: 17, fat: 14, carb: 24, per: 100, category: 'fastfood', additives: ["E621", "E451", "E282"] },
+    { name: "French Fries", cal: 312, prot: 3.4, fat: 15, carb: 41, per: 100, category: 'fastfood', additives: ["E330"] },
+    { name: "Ayam Crispy", cal: 260, prot: 18, fat: 16, carb: 12, per: 100, category: 'fastfood', additives: ["E621", "E471"] }
 ];
 
 /**
@@ -413,17 +432,48 @@ export const additiveDatabase = {
 };
 
 /**
- * Search foods by name
+ * Search foods by name with optional filters
  * @param {string} query - Search query
+ * @param {Object} filters - Optional filters { category, maxCalories, minProtein }
  * @returns {Array} Matching food items
  */
-export function searchFoods(query) {
-    if (!query || query.length < 2) return [];
+export function searchFoods(query, filters = {}) {
+    let results = [...foodDatabase];
 
-    const lowerQuery = query.toLowerCase();
-    return foodDatabase.filter(food =>
-        food.name.toLowerCase().includes(lowerQuery)
-    );
+    // Apply category filter
+    if (filters.category && filters.category !== 'all') {
+        results = results.filter(food => food.category === filters.category);
+    }
+
+    // Apply calorie filter
+    if (filters.maxCalories && filters.maxCalories > 0) {
+        results = results.filter(food => food.cal <= filters.maxCalories);
+    }
+
+    // Apply protein filter
+    if (filters.minProtein && filters.minProtein > 0) {
+        results = results.filter(food => food.prot >= filters.minProtein);
+    }
+
+    // Apply name search
+    if (query && query.length >= 2) {
+        const lowerQuery = query.toLowerCase();
+        results = results.filter(food =>
+            food.name.toLowerCase().includes(lowerQuery)
+        );
+    }
+
+    return results;
+}
+
+/**
+ * Get foods by category
+ * @param {string} categoryId - Category ID
+ * @returns {Array} Foods in that category
+ */
+export function getFoodsByCategory(categoryId) {
+    if (!categoryId || categoryId === 'all') return [...foodDatabase];
+    return foodDatabase.filter(food => food.category === categoryId);
 }
 
 /**
@@ -461,11 +511,23 @@ export function getUniqueAdditives(foods) {
     return [...new Set(allAdditives)];
 }
 
+/**
+ * Get category info by ID
+ * @param {string} categoryId - Category ID
+ * @returns {Object|null} Category object or null
+ */
+export function getCategoryById(categoryId) {
+    return FOOD_CATEGORIES.find(cat => cat.id === categoryId) || null;
+}
+
 export default {
     foodDatabase,
     additiveDatabase,
+    FOOD_CATEGORIES,
     searchFoods,
+    getFoodsByCategory,
     getFoodByName,
     getAdditiveInfo,
-    getUniqueAdditives
+    getUniqueAdditives,
+    getCategoryById
 };

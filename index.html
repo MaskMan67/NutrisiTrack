@@ -200,10 +200,58 @@
                             <div class="selected-date-display" id="selectedDateDisplay">Hari Ini</div>
                         </div>
 
+                        <!-- Category Filter -->
+                        <div class="form-group">
+                            <label class="form-label">🏷️ Kategori</label>
+                            <div class="category-tabs" id="categoryTabs">
+                                <button class="category-tab category-tab--active" data-category="all">🍽️ Semua</button>
+                                <button class="category-tab" data-category="pokok">🍚 Pokok</button>
+                                <button class="category-tab" data-category="hewani">🍗 Hewani</button>
+                                <button class="category-tab" data-category="nabati">🥜 Nabati</button>
+                                <button class="category-tab" data-category="sayuran">🥬 Sayuran</button>
+                                <button class="category-tab" data-category="buah">🍎 Buah</button>
+                                <button class="category-tab" data-category="masakan">🍛 Masakan</button>
+                                <button class="category-tab" data-category="snack">🍿 Snack</button>
+                                <button class="category-tab" data-category="minuman">🥛 Minuman</button>
+                                <button class="category-tab" data-category="fastfood">🍔 Fast Food</button>
+                            </div>
+                        </div>
+
+                        <!-- Recent Foods -->
+                        <div class="form-group recent-foods-group" id="recentFoodsGroup" style="display: none;">
+                            <label class="form-label">⚡ Cepat Tambah</label>
+                            <div class="recent-foods" id="recentFoodsChips">
+                                <!-- Dynamically populated -->
+                            </div>
+                        </div>
+
+                        <!-- Food Search -->
                         <div class="form-group food-search">
                             <input type="text" id="foodSearch" class="form-input"
                                 placeholder="🔍 Cari makanan (Cth: Nasi, Ayam)..." autocomplete="off">
                             <div class="search-results" id="searchResults"></div>
+                        </div>
+
+                        <!-- Portion Slider -->
+                        <div class="form-group portion-slider-group">
+                            <label class="form-label">⚖️ Porsi: <span id="portionValue">100</span>g</label>
+                            <div class="portion-slider-container">
+                                <input type="range" id="portionSlider" class="portion-slider" min="25" max="500"
+                                    step="25" value="100">
+                                <div class="portion-presets">
+                                    <button class="btn btn--xs btn--outline" onclick="setPortionPreset(50)">50g</button>
+                                    <button class="btn btn--xs btn--outline btn--active"
+                                        onclick="setPortionPreset(100)">100g</button>
+                                    <button class="btn btn--xs btn--outline"
+                                        onclick="setPortionPreset(150)">150g</button>
+                                    <button class="btn btn--xs btn--outline"
+                                        onclick="setPortionPreset(200)">200g</button>
+                                </div>
+                            </div>
+                            <div class="portion-nutrition-preview" id="portionPreview" style="display: none;">
+                                <span class="preview-item">🔥 <span id="previewCal">0</span> kkal</span>
+                                <span class="preview-item">🥩 <span id="previewProt">0</span>g</span>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -215,7 +263,7 @@
                                     <option value="Snack">🍿 Snack</option>
                                 </select>
                                 <input type="number" id="foodAmount" class="form-input" placeholder="Gram" value="100"
-                                    min="1" max="2000">
+                                    min="1" max="2000" style="display: none;">
                                 <button class="btn btn--primary" onclick="addSelectedFood()">Tambah</button>
                             </div>
                         </div>

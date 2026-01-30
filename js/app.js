@@ -6,7 +6,7 @@
 // Import modules
 import { saveProfile, loadProfile, saveFoods, loadFoods, clearAllData, saveTheme, loadTheme, getTodayDateString, saveDailyData, loadDailyData, loadWeeklyData } from './storage.js';
 import { calculateDailyNeeds, calculateFoodTotals, getBMIIndicatorPosition, ACTIVITY_LEVELS } from './calculator.js';
-import { foodDatabase, searchFoods, getFoodByName, getAdditiveInfo, getUniqueAdditives } from './foodDatabase.js';
+import { foodDatabase, searchFoods, getFoodByName, getAdditiveInfo, getUniqueAdditives, FOOD_CATEGORIES } from './foodDatabase.js';
 import { initHydration, addWater, resetWater, getWaterCount, isWaterTargetReached } from './hydration.js';
 import { initStreak, getStreak, getStreakMessage } from './streak.js';
 import { initWeeklyChart, updateWeeklyChart } from './weeklyChart.js';
@@ -20,6 +20,8 @@ let addedFoods = [];
 let dailyNeeds = null;
 let nutritionChart = null;
 let currentSelectedDate = getTodayDateString(); // Track which date we're adding food to
+let currentCategoryFilter = 'all'; // Current category filter
+let recentFoods = []; // Track recently added foods for quick-add
 
 // ============================================
 // DOM Elements (cached on init)
@@ -86,10 +88,10 @@ function initTheme() {
 function applyTheme(theme) {
     if (theme === 'dark') {
         document.body.setAttribute('data-theme', 'dark');
-        if (elements.themeToggle) elements.themeToggle.textContent = '🌙';
+        if (elements.themeToggle) elements.themeToggle.textContent = '🌙 Mode Terang';
     } else {
         document.body.removeAttribute('data-theme');
-        if (elements.themeToggle) elements.themeToggle.textContent = '☀️';
+        if (elements.themeToggle) elements.themeToggle.textContent = '☀️ Mode Gelap';
     }
 }
 
@@ -186,6 +188,20 @@ function cacheElements() {
     // Date picker
     elements.entryDate = document.getElementById('entryDate');
     elements.selectedDateDisplay = document.getElementById('selectedDateDisplay');
+
+    // Category filter
+    elements.categoryTabs = document.getElementById('categoryTabs');
+
+    // Recent foods
+    elements.recentFoodsGroup = document.getElementById('recentFoodsGroup');
+    elements.recentFoodsChips = document.getElementById('recentFoodsChips');
+
+    // Portion slider
+    elements.portionSlider = document.getElementById('portionSlider');
+    elements.portionValue = document.getElementById('portionValue');
+    elements.portionPreview = document.getElementById('portionPreview');
+    elements.previewCal = document.getElementById('previewCal');
+    elements.previewProt = document.getElementById('previewProt');
 }
 
 /**
@@ -262,7 +278,7 @@ function updateSelectedDateDisplay() {
 function setupEventListeners() {
     // Theme toggle
     if (elements.themeToggle) {
-        elements.themeToggle.addEventListener('click', toggleTheme);
+        elements.themeToggle.addEventListener('click', window.toggleTheme);
     }
 
     // Date picker change
@@ -309,6 +325,46 @@ function setupEventListeners() {
             closeModal();
         }
     });
+
+    // Category filter tabs
+    if (elements.categoryTabs) {
+        elements.categoryTabs.addEventListener('click', (e) => {
+            const tab = e.target.closest('.category-tab');
+            if (!tab) return;
+
+            // Update active state
+            elements.categoryTabs.querySelectorAll('.category-tab').forEach(t =>
+                t.classList.remove('category-tab--active')
+            );
+            tab.classList.add('category-tab--active');
+
+            // Update filter
+            currentCategoryFilter = tab.dataset.category;
+
+            // Trigger search refresh if there's a query
+            if (elements.foodSearch.value.length >= 2) {
+                handleFoodSearch(elements.foodSearch.value);
+            }
+        });
+    }
+
+    // Portion slider
+    if (elements.portionSlider) {
+        elements.portionSlider.addEventListener('input', (e) => {
+            const value = e.target.value;
+            elements.portionValue.textContent = value;
+            elements.foodAmount.value = value;
+
+            // Update portion preview if food is selected
+            updatePortionPreview();
+
+            // Update preset button states
+            updatePortionPresetButtons(value);
+        });
+    }
+
+    // Load recent foods from localStorage
+    loadRecentFoods();
 }
 
 // ============================================
@@ -472,14 +528,26 @@ function updateProgressDisplay() {
  * Handle food search input
  */
 function handleFoodSearch(query) {
-    const results = searchFoods(query);
+    // Use category filter
+    const filters = { category: currentCategoryFilter };
+    const results = searchFoods(query, filters);
+
+    if (results.length === 0 && query.length >= 2) {
+        elements.searchResults.innerHTML = `
+            <div class="search-item search-item--empty">
+                <span>Tidak ditemukan. Coba kategori lain?</span>
+            </div>
+        `;
+        elements.searchResults.classList.add('active');
+        return;
+    }
 
     if (results.length === 0) {
         elements.searchResults.classList.remove('active');
         return;
     }
 
-    elements.searchResults.innerHTML = results.map(food => `
+    elements.searchResults.innerHTML = results.slice(0, 10).map(food => `
         <div class="search-item" data-food="${food.name}">
             <span class="search-item__name">${food.name}</span>
             <span class="search-item__cal">${food.cal} kkal/100g</span>
@@ -503,6 +571,9 @@ function selectFood(name) {
     selectedFood = getFoodByName(name);
     elements.foodSearch.value = name;
     elements.searchResults.classList.remove('active');
+
+    // Show portion preview
+    updatePortionPreview();
 }
 
 /**
@@ -514,7 +585,7 @@ window.addSelectedFood = function () {
         return;
     }
 
-    const amount = +elements.foodAmount.value || 100;
+    const amount = +elements.foodAmount.value || +elements.portionSlider?.value || 100;
     const meal = elements.mealTime.value;
 
     addedFoods.push({
@@ -529,8 +600,16 @@ window.addSelectedFood = function () {
     // Also update legacy storage for backwards compatibility
     saveFoods(addedFoods);
 
+    // Add to recent foods
+    addToRecentFoods(selectedFood);
+
     selectedFood = null;
     elements.foodSearch.value = '';
+
+    // Hide portion preview
+    if (elements.portionPreview) {
+        elements.portionPreview.style.display = 'none';
+    }
 
     // Update displays
     renderFoodList();
@@ -834,10 +913,7 @@ window.selectYesterday = function () {
  */
 window.navigateTo = navigateTo;
 
-/**
- * Toggle theme (global function for onclick)
- */
-window.toggleTheme = toggleTheme;
+// toggleTheme is already defined as a global function on window at line 99
 
 // ============================================
 // Toast Notifications
@@ -880,3 +956,134 @@ function registerServiceWorker() {
         });
     }
 }
+
+// ============================================
+// Portion Slider & Preview
+// ============================================
+
+/**
+ * Update portion preview when food is selected
+ */
+function updatePortionPreview() {
+    if (!selectedFood || !elements.portionPreview) return;
+
+    const portion = +elements.portionSlider?.value || 100;
+    const cal = Math.round(selectedFood.cal * portion / 100);
+    const prot = (selectedFood.prot * portion / 100).toFixed(1);
+
+    elements.previewCal.textContent = cal;
+    elements.previewProt.textContent = prot;
+    elements.portionPreview.style.display = 'flex';
+}
+
+/**
+ * Update portion preset button active states
+ */
+function updatePortionPresetButtons(value) {
+    const presetButtons = document.querySelectorAll('.portion-presets .btn');
+    presetButtons.forEach(btn => {
+        btn.classList.remove('btn--active');
+        if (btn.textContent === `${value}g`) {
+            btn.classList.add('btn--active');
+        }
+    });
+}
+
+/**
+ * Set portion preset (global function for onclick)
+ */
+window.setPortionPreset = function (value) {
+    if (elements.portionSlider) {
+        elements.portionSlider.value = value;
+        elements.portionValue.textContent = value;
+        elements.foodAmount.value = value;
+        updatePortionPreview();
+        updatePortionPresetButtons(value);
+    }
+};
+
+// ============================================
+// Recent Foods
+// ============================================
+
+const RECENT_FOODS_KEY = 'nutriscan_recent_foods';
+const MAX_RECENT_FOODS = 5;
+
+/**
+ * Load recent foods from localStorage
+ */
+function loadRecentFoods() {
+    try {
+        const saved = localStorage.getItem(RECENT_FOODS_KEY);
+        recentFoods = saved ? JSON.parse(saved) : [];
+        renderRecentFoods();
+    } catch (e) {
+        recentFoods = [];
+    }
+}
+
+/**
+ * Add food to recent foods list
+ */
+function addToRecentFoods(food) {
+    if (!food) return;
+
+    // Remove if already exists
+    recentFoods = recentFoods.filter(f => f.name !== food.name);
+
+    // Add to front
+    recentFoods.unshift({
+        name: food.name,
+        cal: food.cal,
+        prot: food.prot
+    });
+
+    // Keep only MAX_RECENT_FOODS
+    if (recentFoods.length > MAX_RECENT_FOODS) {
+        recentFoods = recentFoods.slice(0, MAX_RECENT_FOODS);
+    }
+
+    // Save to localStorage
+    try {
+        localStorage.setItem(RECENT_FOODS_KEY, JSON.stringify(recentFoods));
+    } catch (e) {
+        console.log('Could not save recent foods');
+    }
+
+    renderRecentFoods();
+}
+
+/**
+ * Render recent foods chips
+ */
+function renderRecentFoods() {
+    if (!elements.recentFoodsGroup || !elements.recentFoodsChips) return;
+
+    if (recentFoods.length === 0) {
+        elements.recentFoodsGroup.style.display = 'none';
+        return;
+    }
+
+    elements.recentFoodsGroup.style.display = 'block';
+    elements.recentFoodsChips.innerHTML = recentFoods.map(food => `
+        <button class="recent-food-chip" onclick="quickAddFood('${food.name.replace(/'/g, "\\'")}')">
+            ${food.name}
+            <span class="recent-food-chip__cal">${food.cal}kkal</span>
+        </button>
+    `).join('');
+}
+
+/**
+ * Quick add food from recent foods (global function for onclick)
+ */
+window.quickAddFood = function (name) {
+    selectedFood = getFoodByName(name);
+    if (!selectedFood) {
+        showToast('Makanan tidak ditemukan', 'error');
+        return;
+    }
+
+    elements.foodSearch.value = name;
+    updatePortionPreview();
+    showToast(`${name} dipilih, atur porsi lalu Tambah`);
+};
